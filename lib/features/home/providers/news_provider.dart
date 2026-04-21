@@ -4,17 +4,37 @@ import '../../../core/models/models.dart';
 
 final _supabase = Supabase.instance.client;
 
-// All articles
+// ── Helper: tandai artikel mana saja yang sudah di-bookmark ──────────────────
+Future<List<Article>> _withBookmarkStatus(List<Article> articles) async {
+  final user = _supabase.auth.currentUser;
+  if (user == null) return articles;
+
+  final data = await _supabase
+      .from('bookmarks')
+      .select('article_id')
+      .eq('user_id', user.id);
+
+  final bookmarkedIds =
+      (data as List).map((e) => e['article_id'] as String).toSet();
+
+  return articles.map((a) {
+    a.isBookmarked = bookmarkedIds.contains(a.id);
+    return a;
+  }).toList();
+}
+
+// ── All articles ──────────────────────────────────────────────────────────────
 final articlesProvider = FutureProvider<List<Article>>((ref) async {
   final data = await _supabase
       .from('articles')
       .select()
       .order('published_at', ascending: false)
       .limit(30);
-  return (data as List).map((e) => Article.fromJson(e)).toList();
+  final articles = (data as List).map((e) => Article.fromJson(e)).toList();
+  return _withBookmarkStatus(articles);
 });
 
-// Articles by category
+// ── Articles by category ──────────────────────────────────────────────────────
 final articlesByCategoryProvider =
     FutureProvider.family<List<Article>, String>((ref, category) async {
   final data = await _supabase
@@ -23,13 +43,13 @@ final articlesByCategoryProvider =
       .eq('category', category)
       .order('published_at', ascending: false)
       .limit(20);
-  return (data as List).map((e) => Article.fromJson(e)).toList();
+  final articles = (data as List).map((e) => Article.fromJson(e)).toList();
+  return _withBookmarkStatus(articles);
 });
 
-// Search query state
+// ── Search ────────────────────────────────────────────────────────────────────
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
-// Search results
 final searchResultsProvider = FutureProvider<List<Article>>((ref) async {
   final query = ref.watch(searchQueryProvider);
   if (query.trim().isEmpty) return [];
@@ -39,40 +59,52 @@ final searchResultsProvider = FutureProvider<List<Article>>((ref) async {
       .ilike('title', '%$query%')
       .order('published_at', ascending: false)
       .limit(20);
-  return (data as List).map((e) => Article.fromJson(e)).toList();
+  final articles = (data as List).map((e) => Article.fromJson(e)).toList();
+  return _withBookmarkStatus(articles);
 });
 
-// Bookmarks from Supabase
+// ── Bookmarks ─────────────────────────────────────────────────────────────────
 final bookmarksProvider = FutureProvider<List<Article>>((ref) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return [];
-  final data = await _supabase
+
+  // Step 1: ambil article_id dari bookmarks
+  final bmData = await _supabase
       .from('bookmarks')
-      .select('article_id, articles(*)')
+      .select('article_id')
       .eq('user_id', user.id)
       .order('created_at', ascending: false);
-  return (data as List)
-      .map((e) =>
-          Article.fromJson(e['articles'] as Map<String, dynamic>)
-            ..isBookmarked = true)
+
+  final ids = (bmData as List)
+      .map((e) => e['article_id'] as String)
+      .toList();
+
+  if (ids.isEmpty) return [];
+
+  // Step 2: ambil artikel berdasarkan id
+  final articleData = await _supabase
+      .from('articles')
+      .select()
+      .inFilter('id', ids);
+
+  // Step 3: urutkan sesuai urutan bookmark (terbaru dulu)
+  final articlesMap = {
+    for (final e in articleData as List)
+      (e['id'] as String): Article.fromJson(e as Map<String, dynamic>)
+        ..isBookmarked = true
+  };
+
+  return ids
+      .where((id) => articlesMap.containsKey(id))
+      .map((id) => articlesMap[id]!)
       .toList();
 });
 
-final bookmarkedIdsProvider = FutureProvider<Set<String>>((ref) async {
-  final user = _supabase.auth.currentUser;
-  if (user == null) return {};
-  final data = await _supabase
-      .from('bookmarks')
-      .select('article_id')
-      .eq('user_id', user.id);
-  return (data as List).map((e) => e['article_id'] as String).toSet();
-});
-
-// Toggle bookmark
-Future<void> toggleBookmark(String articleId, bool isBookmarked) async {
+// ── Toggle bookmark ───────────────────────────────────────────────────────────
+Future<void> toggleBookmark(String articleId, bool isCurrentlyBookmarked) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return;
-  if (isBookmarked) {
+  if (isCurrentlyBookmarked) {
     await _supabase
         .from('bookmarks')
         .delete()
@@ -86,7 +118,7 @@ Future<void> toggleBookmark(String articleId, bool isBookmarked) async {
   }
 }
 
-// Profile
+// ── Profile ───────────────────────────────────────────────────────────────────
 final profileProvider = FutureProvider<UserProfile?>((ref) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return null;
@@ -105,7 +137,7 @@ Future<void> updateProfile(Map<String, dynamic> data) async {
   await _supabase.from('profiles').upsert({'id': user.id, ...data});
 }
 
-// Categories
+// ── Categories ────────────────────────────────────────────────────────────────
 const List<Map<String, dynamic>> kCategories = [
   {'name': 'Nasional', 'icon': '🇮🇩'},
   {'name': 'Internasional', 'icon': '🌍'},

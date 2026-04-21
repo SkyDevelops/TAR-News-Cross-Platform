@@ -49,8 +49,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
       state = state.copyWith(status: AuthStatus.success, user: res.user);
     } on AuthException catch (e) {
-      state = state.copyWith(
-          status: AuthStatus.error, errorMessage: e.message);
+      state = state.copyWith(status: AuthStatus.error, errorMessage: e.message);
     } catch (_) {
       state = state.copyWith(
           status: AuthStatus.error,
@@ -74,12 +73,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (msg.toLowerCase().contains('invalid')) {
         msg = 'Email atau password salah';
       }
-      state =
-          state.copyWith(status: AuthStatus.error, errorMessage: msg);
+      state = state.copyWith(status: AuthStatus.error, errorMessage: msg);
     } catch (_) {
       state = state.copyWith(
           status: AuthStatus.error,
           errorMessage: 'Terjadi kesalahan saat login');
+    }
+  }
+
+  // ✅ TAMBAHAN: Google Sign-In via Supabase OAuth
+  Future<void> loginWithGoogle() async {
+    state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
+    try {
+      await _supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'http://localhost:8080', // untuk web dev; ganti sesuai platform
+        authScreenLaunchMode: LaunchMode.platformDefault,
+      );
+      // Supabase akan redirect browser ke Google lalu kembali ke app
+      // Status sukses akan ditangani oleh onAuthStateChange di app_router
+      state = state.copyWith(status: AuthStatus.initial);
+    } on AuthException catch (e) {
+      state = state.copyWith(status: AuthStatus.error, errorMessage: e.message);
+    } catch (e) {
+      state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: 'Gagal login dengan Google');
     }
   }
 
@@ -88,14 +107,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _supabase.auth.signOut();
       state = const AuthState();
     } catch (_) {
-      state = state.copyWith(
-          status: AuthStatus.error, errorMessage: 'Gagal logout');
+      state =
+          state.copyWith(status: AuthStatus.error, errorMessage: 'Gagal logout');
     }
   }
 
   void reset() {
-    state = state.copyWith(
-        status: AuthStatus.initial, errorMessage: null);
+    state = state.copyWith(status: AuthStatus.initial, errorMessage: null);
   }
 }
 

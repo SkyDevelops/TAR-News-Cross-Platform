@@ -39,6 +39,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
   }
 
+  // ✅ TAMBAHAN: panggil loginWithGoogle
+  void _onGoogleLogin() {
+    ref.read(authProvider.notifier).loginWithGoogle();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -77,9 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Text('Berita terpercaya, kapan saja\ndan di mana saja.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                            height: 1.6)),
+                            color: Colors.white70, fontSize: 16, height: 1.6)),
                   ],
                 ),
               ),
@@ -104,36 +107,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         const SizedBox(height: 12),
                         const Text('Log in',
                             style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w700)),
+                                fontSize: 26, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 6),
                         Text('Log in untuk menikmati layanan kami.',
                             style: TextStyle(
                                 color: Colors.grey[600], fontSize: 14)),
                         const SizedBox(height: 32),
+
+                        // ✅ FIX: tombol Google sekarang memanggil _onGoogleLogin
                         OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Text('G',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16)),
+                          onPressed: isLoading ? null : _onGoogleLogin,
+                          icon: isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppTheme.primary),
+                                )
+                              : const Text('G',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
+                                      color: AppTheme.primary)),
                           label: const Text('Login dengan Google'),
                           style: OutlinedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 48),
+                            foregroundColor: AppTheme.primary,
+                            side: const BorderSide(color: AppTheme.primary),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8)),
                           ),
                         ),
+
                         const SizedBox(height: 20),
                         Row(children: [
                           const Expanded(child: Divider()),
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12),
                             child: Text('atau log in dengan',
                                 style: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontSize: 13)),
+                                    color: Colors.grey[500], fontSize: 13)),
                           ),
                           const Expanded(child: Divider()),
                         ]),
@@ -155,8 +170,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               icon: Icon(_obscurePassword
                                   ? Icons.visibility_off
                                   : Icons.visibility),
-                              onPressed: () => setState(() =>
-                                  _obscurePassword = !_obscurePassword),
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
                             ),
                           ),
                         ),
@@ -165,8 +180,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: TextButton(
                             onPressed: () {},
                             child: const Text('Lupa Password?',
-                                style:
-                                    TextStyle(color: AppTheme.primary)),
+                                style: TextStyle(color: AppTheme.primary)),
                           ),
                         ),
                         PrimaryButton(
@@ -178,8 +192,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text('Belum punya akun? ',
-                                  style: TextStyle(
-                                      color: Colors.grey[600])),
+                                  style: TextStyle(color: Colors.grey[600])),
                               GestureDetector(
                                 onTap: () => context.go('/register'),
                                 child: const Text('Register here',

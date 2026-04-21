@@ -10,7 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # State Management — PAKAI VERSI 2.x BUKAN 3.x
+  # WebView
+  webview_flutter: ^4.10.0
+
+  # State Management
   flutter_riverpod: ^2.5.1
   riverpod: ^2.5.1
 
@@ -25,11 +28,19 @@ dependencies:
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
   flutter_svg: ^2.0.10+1
+  flutter_html: ^3.0.0-beta.2
+
+  # Image Picker
+  image_picker: ^1.1.2
 
   # Utils
   shared_preferences: ^2.2.3
   url_launcher: ^6.2.6
   intl: ^0.19.0
+
+  # Scraper / HTML Parser
+  http: ^1.2.1
+  html: ^0.15.4
 
 dev_dependencies:
   flutter_test:

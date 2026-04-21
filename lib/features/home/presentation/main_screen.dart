@@ -60,7 +60,7 @@ class MainScreen extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.grid_view_outlined),
             selectedIcon: Icon(Icons.grid_view),
-            label: 'Kanal',
+            label: 'Kategori',
           ),
           NavigationDestination(
             icon: Icon(Icons.bookmark_outline),

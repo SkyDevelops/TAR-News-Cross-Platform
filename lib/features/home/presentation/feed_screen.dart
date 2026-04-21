@@ -84,10 +84,18 @@ class FeedScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+
+                // ── FIX: tambah onBookmark di HeroArticleCard ──
                 HeroArticleCard(
                   article: hero,
                   onTap: () => context.go('/home/article/${hero.id}'),
+                  onBookmark: () async {
+                    await toggleBookmark(hero.id, hero.isBookmarked);
+                    ref.invalidate(articlesProvider);
+                    ref.invalidate(bookmarksProvider);
+                  },
                 ),
+
                 const SizedBox(height: 16),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(16, 0, 16, 4),
@@ -102,8 +110,6 @@ class FeedScreen extends ConsumerWidget {
                       onBookmark: () async {
                         await toggleBookmark(
                             article.id, article.isBookmarked);
-                        // FIXED: use ref.invalidate() instead of ref.refresh()
-                        // to avoid unused_result warning
                         ref.invalidate(articlesProvider);
                         ref.invalidate(bookmarksProvider);
                       },

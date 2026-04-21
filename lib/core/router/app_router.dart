@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -36,13 +35,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/home',
         builder: (_, __) => const MainScreen(),
         routes: [
+          // ✅ FIX: tambahkan semua sub-route yang dipakai MainScreen
+          GoRoute(
+              path: 'search',
+              builder: (_, __) => const MainScreen()),
+          GoRoute(
+              path: 'kanal',
+              builder: (_, __) => const MainScreen()),
+          GoRoute(
+              path: 'bookmark',
+              builder: (_, __) => const MainScreen()),
+          GoRoute(
+              path: 'profile',
+              builder: (_, __) => const MainScreen()),
           GoRoute(
               path: 'article/:id',
               builder: (_, state) => ArticleDetailScreen(
                   articleId: state.pathParameters['id']!)),
           GoRoute(
-              path: 'settings', builder: (_, __) => const SettingScreen()),
-          GoRoute(path: 'about', builder: (_, __) => const AboutScreen()),
+              path: 'settings',
+              builder: (_, __) => const SettingScreen()),
+          GoRoute(
+              path: 'about',
+              builder: (_, __) => const AboutScreen()),
         ],
       ),
     ],

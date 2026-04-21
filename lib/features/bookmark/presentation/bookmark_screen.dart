@@ -28,8 +28,7 @@ class BookmarkScreen extends ConsumerWidget {
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text('Bookmark',
-                style: TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.w700)),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
           ),
           Expanded(
             child: bookmarksAsync.when(
@@ -37,8 +36,34 @@ class BookmarkScreen extends ConsumerWidget {
                 itemCount: 4,
                 itemBuilder: (_, __) => const ShimmerCard(),
               ),
-              error: (_, __) =>
-                  const Center(child: Text('Gagal memuat bookmark')),
+              // ── FIX: tampilkan error detail untuk debugging ──
+              error: (e, st) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline,
+                          size: 48, color: Colors.grey),
+                      const SizedBox(height: 12),
+                      const Text('Gagal memuat bookmark'),
+                      const SizedBox(height: 8),
+                      Text(
+                        '$e',
+                        style: const TextStyle(
+                            fontSize: 11, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () => ref.invalidate(bookmarksProvider),
+                        child: const Text('Coba lagi',
+                            style: TextStyle(color: AppTheme.primary)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               data: (articles) {
                 if (articles.isEmpty) {
                   return Center(
@@ -49,43 +74,41 @@ class BookmarkScreen extends ConsumerWidget {
                             size: 64, color: Colors.grey[300]),
                         const SizedBox(height: 12),
                         Text('Belum ada berita yang di-bookmark',
-                            style:
-                                TextStyle(color: Colors.grey[500])),
+                            style: TextStyle(color: Colors.grey[500])),
                         const SizedBox(height: 8),
                         Text(
-                            'Tap ikon bookmark pada berita\nuntuk menyimpannya',
-                            style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 13),
-                            textAlign: TextAlign.center),
+                          'Tap ikon bookmark pada berita\nuntuk menyimpannya',
+                          style: TextStyle(
+                              color: Colors.grey[400], fontSize: 13),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
                   );
                 }
                 return RefreshIndicator(
-                  onRefresh: () =>
-                      ref.refresh(bookmarksProvider.future),
+                  onRefresh: () => ref.refresh(bookmarksProvider.future),
                   color: AppTheme.primary,
                   child: ListView(
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                         child: Text(
-                            '${articles.length} berita tersimpan',
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 13)),
+                          '${articles.length} berita tersimpan',
+                          style: TextStyle(
+                              color: Colors.grey[600], fontSize: 13),
+                        ),
                       ),
                       ...articles.map((a) => ArticleCard(
                             article: a,
-                            onTap: () => context
-                                .go('/home/article/${a.id}'),
+                            onTap: () =>
+                                context.go('/home/article/${a.id}'),
                             onBookmark: () async {
+                              // isBookmarked selalu true di sini
+                              // karena semua artikel di halaman ini sudah di-bookmark
                               await toggleBookmark(a.id, true);
-                              // FIXED: use ref.invalidate() instead of ref.refresh()
-                              // to avoid unused_result warning
                               ref.invalidate(bookmarksProvider);
+                              ref.invalidate(articlesProvider);
                             },
                           )),
                       const SizedBox(height: 16),
