@@ -4,7 +4,7 @@ import '../../../core/models/models.dart';
 
 final _supabase = Supabase.instance.client;
 
-// ── Helper: tandai artikel mana saja yang sudah di-bookmark ──────────────────
+// ── Helper: tandai artikel yang sudah di-bookmark ────────────────────────────
 Future<List<Article>> _withBookmarkStatus(List<Article> articles) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return articles;
@@ -23,13 +23,19 @@ Future<List<Article>> _withBookmarkStatus(List<Article> articles) async {
   }).toList();
 }
 
-// ── All articles ──────────────────────────────────────────────────────────────
+// ── All articles — auto-refresh setiap 30 detik ──────────────────────────────
 final articlesProvider = FutureProvider<List<Article>>((ref) async {
+  // Setelah 30 detik, provider otomatis fetch ulang
+  Future.delayed(const Duration(seconds: 30), () {
+    ref.invalidateSelf();
+  });
+
   final data = await _supabase
       .from('articles')
       .select()
       .order('published_at', ascending: false)
       .limit(30);
+
   final articles = (data as List).map((e) => Article.fromJson(e)).toList();
   return _withBookmarkStatus(articles);
 });
@@ -53,12 +59,16 @@ final searchQueryProvider = StateProvider<String>((ref) => '');
 final searchResultsProvider = FutureProvider<List<Article>>((ref) async {
   final query = ref.watch(searchQueryProvider);
   if (query.trim().isEmpty) return [];
+
+  // Query ke semua artikel (tidak ada limit ketat)
+  // ilike di title ATAU summary ATAU source_name
   final data = await _supabase
       .from('articles')
       .select()
-      .ilike('title', '%$query%')
+      .or('title.ilike.%$query%,summary.ilike.%$query%,source_name.ilike.%$query%')
       .order('published_at', ascending: false)
-      .limit(20);
+      .limit(50); // lebih banyak dari feed utama
+
   final articles = (data as List).map((e) => Article.fromJson(e)).toList();
   return _withBookmarkStatus(articles);
 });
@@ -75,17 +85,13 @@ final bookmarksProvider = FutureProvider<List<Article>>((ref) async {
       .eq('user_id', user.id)
       .order('created_at', ascending: false);
 
-  final ids = (bmData as List)
-      .map((e) => e['article_id'] as String)
-      .toList();
-
+  final ids =
+      (bmData as List).map((e) => e['article_id'] as String).toList();
   if (ids.isEmpty) return [];
 
   // Step 2: ambil artikel berdasarkan id
-  final articleData = await _supabase
-      .from('articles')
-      .select()
-      .inFilter('id', ids);
+  final articleData =
+      await _supabase.from('articles').select().inFilter('id', ids);
 
   // Step 3: urutkan sesuai urutan bookmark (terbaru dulu)
   final articlesMap = {
@@ -101,7 +107,8 @@ final bookmarksProvider = FutureProvider<List<Article>>((ref) async {
 });
 
 // ── Toggle bookmark ───────────────────────────────────────────────────────────
-Future<void> toggleBookmark(String articleId, bool isCurrentlyBookmarked) async {
+Future<void> toggleBookmark(
+    String articleId, bool isCurrentlyBookmarked) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return;
   if (isCurrentlyBookmarked) {

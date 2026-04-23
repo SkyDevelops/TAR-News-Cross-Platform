@@ -5,11 +5,39 @@ import '../providers/news_provider.dart';
 import '../../../shared/widgets/widgets.dart';
 import '../../../core/theme/app_theme.dart';
 
-class FeedScreen extends ConsumerWidget {
+class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FeedScreen> createState() => _FeedScreenState();
+}
+
+class _FeedScreenState extends ConsumerState<FeedScreen>
+    with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    // Daftarkan observer lifecycle app
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // Refresh otomatis saat app kembali dari background
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(articlesProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final articlesAsync = ref.watch(articlesProvider);
 
     return Scaffold(
@@ -28,6 +56,7 @@ class FeedScreen extends ConsumerWidget {
         ],
       ),
       body: RefreshIndicator(
+        // Pull-to-refresh manual tetap bisa
         onRefresh: () => ref.refresh(articlesProvider.future),
         color: AppTheme.primary,
         child: articlesAsync.when(
@@ -46,7 +75,7 @@ class FeedScreen extends ConsumerWidget {
                     style: TextStyle(color: Colors.grey[600])),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => ref.refresh(articlesProvider),
+                  onPressed: () => ref.invalidate(articlesProvider),
                   child: const Text('Coba lagi',
                       style: TextStyle(color: AppTheme.primary)),
                 ),
@@ -84,8 +113,6 @@ class FeedScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-
-                // ── FIX: tambah onBookmark di HeroArticleCard ──
                 HeroArticleCard(
                   article: hero,
                   onTap: () => context.go('/home/article/${hero.id}'),
@@ -95,7 +122,6 @@ class FeedScreen extends ConsumerWidget {
                     ref.invalidate(bookmarksProvider);
                   },
                 ),
-
                 const SizedBox(height: 16),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(16, 0, 16, 4),
