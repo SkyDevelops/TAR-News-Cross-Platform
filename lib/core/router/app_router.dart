@@ -10,54 +10,62 @@ import '../../features/settings/presentation/setting_screen.dart';
 import '../../features/about/presentation/about_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final supabase = Supabase.instance.client;
   final notifier = ValueNotifier<bool>(false);
 
-  supabase.auth.onAuthStateChange.listen((_) {
+  final supabaseClient = Supabase.instance.client;
+  supabaseClient.auth.onAuthStateChange.listen((_) {
     notifier.value = !notifier.value;
   });
 
   return GoRouter(
-    initialLocation: supabase.auth.currentUser != null ? '/home' : '/register',
+    initialLocation: '/home',
     refreshListenable: notifier,
     redirect: (context, state) {
-      final loggedIn = supabase.auth.currentUser != null;
-      final onAuth = state.matchedLocation == '/register' ||
-          state.matchedLocation == '/login';
-      if (!loggedIn && !onAuth) return '/register';
-      if (loggedIn && onAuth) return '/home';
       return null;
     },
     routes: [
-      GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
-      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      GoRoute(
+        path: '/register',
+        builder: (_, __) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        builder: (_, __) => const LoginScreen(),
+      ),
       GoRoute(
         path: '/home',
         builder: (_, __) => const MainScreen(),
         routes: [
-          // ✅ FIX: tambahkan semua sub-route yang dipakai MainScreen
           GoRoute(
-              path: 'search',
-              builder: (_, __) => const MainScreen()),
+            path: 'search',
+            builder: (_, __) => const MainScreen(),
+          ),
           GoRoute(
-              path: 'kanal',
-              builder: (_, __) => const MainScreen()),
+            path: 'category/:category',
+            builder: (_, __) => const MainScreen(),
+          ),
           GoRoute(
-              path: 'bookmark',
-              builder: (_, __) => const MainScreen()),
+            path: 'bookmark',
+            builder: (_, __) => const MainScreen(),
+          ),
           GoRoute(
-              path: 'profile',
-              builder: (_, __) => const MainScreen()),
+            path: 'profile',
+            builder: (_, __) => const MainScreen(),
+          ),
           GoRoute(
-              path: 'article/:id',
-              builder: (_, state) => ArticleDetailScreen(
-                  articleId: state.pathParameters['id']!)),
+            path: 'article/:id',
+            builder: (_, state) => ArticleDetailScreen(
+              articleId: state.pathParameters['id']!,
+            ),
+          ),
           GoRoute(
-              path: 'settings',
-              builder: (_, __) => const SettingScreen()),
+            path: 'settings',
+            builder: (_, __) => const SettingScreen(),
+          ),
           GoRoute(
-              path: 'about',
-              builder: (_, __) => const AboutScreen()),
+            path: 'about',
+            builder: (_, __) => const AboutScreen(),
+          ),
         ],
       ),
     ],

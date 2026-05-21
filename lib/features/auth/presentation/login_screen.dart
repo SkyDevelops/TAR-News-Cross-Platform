@@ -28,8 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (_emailController.text.trim().isEmpty ||
         _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Email dan password tidak boleh kosong')),
+        const SnackBar(content: Text('Email dan password tidak boleh kosong')),
       );
       return;
     }
@@ -122,8 +121,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppTheme.primary),
+                                      strokeWidth: 2, color: AppTheme.primary),
                                 )
                               : const Text('G',
                                   style: TextStyle(
@@ -144,8 +142,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         Row(children: [
                           const Expanded(child: Divider()),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text('atau log in dengan',
                                 style: TextStyle(
                                     color: Colors.grey[500], fontSize: 13)),
@@ -156,8 +153,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         TextField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration:
-                              const InputDecoration(labelText: 'Email'),
+                          decoration: const InputDecoration(labelText: 'Email'),
                         ),
                         const SizedBox(height: 14),
                         TextField(
@@ -183,10 +179,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 style: TextStyle(color: AppTheme.primary)),
                           ),
                         ),
-                        PrimaryButton(
-                            label: 'Login',
-                            isLoading: isLoading,
-                            onPressed: _onLogin),
+                        ElevatedButton(
+                          onPressed: isLoading ? null : _onLogin,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text('Login'),
+                        ),
                         const SizedBox(height: 16),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.center,

@@ -30,8 +30,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (_emailController.text.trim().isEmpty ||
         _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Email dan password tidak boleh kosong')),
+        const SnackBar(content: Text('Email dan password tidak boleh kosong')),
       );
       return;
     }
@@ -123,8 +122,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppTheme.primary),
+                                      strokeWidth: 2, color: AppTheme.primary),
                                 )
                               : const Text('G',
                                   style: TextStyle(
@@ -145,8 +143,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         Row(children: [
                           const Expanded(child: Divider()),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text('atau register dengan',
                                 style: TextStyle(
                                     color: Colors.grey[500], fontSize: 13)),
@@ -156,15 +153,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         const SizedBox(height: 20),
                         TextField(
                           controller: _nameController,
-                          decoration: const InputDecoration(
-                              labelText: 'Nama Lengkap'),
+                          decoration:
+                              const InputDecoration(labelText: 'Nama Lengkap'),
                         ),
                         const SizedBox(height: 14),
                         TextField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration:
-                              const InputDecoration(labelText: 'Email'),
+                          decoration: const InputDecoration(labelText: 'Email'),
                         ),
                         const SizedBox(height: 14),
                         TextField(
@@ -182,10 +178,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        PrimaryButton(
-                            label: 'Daftar',
-                            isLoading: isLoading,
-                            onPressed: _onRegister),
+                        ElevatedButton(
+                          onPressed: isLoading ? null : _onRegister,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text('Daftar'),
+                        ),
                         const SizedBox(height: 16),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.center,
