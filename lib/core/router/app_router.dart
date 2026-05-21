@@ -41,7 +41,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (_, __) => const MainScreen(),
           ),
           GoRoute(
-            path: 'category/:category',
+            path: 'category/:slug',
             builder: (_, __) => const MainScreen(),
           ),
           GoRoute(

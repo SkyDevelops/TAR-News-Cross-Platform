@@ -18,6 +18,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  String _redirectPath(BuildContext context) {
+    final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+
+    if (redirect != null && redirect.startsWith('/')) {
+      return redirect;
+    }
+
+    return '/home';
+  }
+
+  String _redirectQuery(BuildContext context) {
+    return Uri.encodeComponent(_redirectPath(context));
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -34,6 +48,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
       return;
     }
+
     ref.read(authProvider.notifier).register(
           email: _emailController.text.trim(),
           password: _passwordController.text,
@@ -41,7 +56,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         );
   }
 
-  // ✅ TAMBAHAN: panggil loginWithGoogle
   void _onGoogleLogin() {
     ref.read(authProvider.notifier).loginWithGoogle();
   }
@@ -50,14 +64,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isLoading = authState.status == AuthStatus.loading;
+    final redirectPath = _redirectPath(context);
+    final redirectQuery = _redirectQuery(context);
 
     ref.listen<AuthState>(authProvider, (_, next) {
-      if (next.status == AuthStatus.success) context.go('/home');
+      if (next.status == AuthStatus.success) {
+        context.go(redirectPath);
+      }
+
       if (next.status == AuthStatus.error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next.errorMessage ?? 'Terjadi kesalahan'),
-          backgroundColor: Colors.red[700],
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage ?? 'Terjadi kesalahan'),
+            backgroundColor: Colors.red[700],
+          ),
+        );
         ref.read(authProvider.notifier).reset();
       }
     });
@@ -74,17 +95,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   children: [
                     Icon(Icons.newspaper, size: 80, color: Colors.white),
                     SizedBox(height: 24),
-                    Text('TAR NEWS',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 40,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 4)),
+                    Text(
+                      'TAR NEWS',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4,
+                      ),
+                    ),
                     SizedBox(height: 12),
-                    Text('Berita terpercaya, kapan saja\ndan di mana saja.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.white70, fontSize: 16, height: 1.6)),
+                    Text(
+                      'Berita terpercaya, kapan saja\ndan di mana saja.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        height: 1.6,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -101,20 +130,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       children: [
                         const TarNewsLogo(),
                         const SizedBox(height: 32),
-                        const Text('Selamat Datang',
-                            style: TextStyle(
-                                fontSize: 26, fontWeight: FontWeight.w700)),
+                        const Text(
+                          'Selamat Datang',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         const SizedBox(height: 6),
                         Text(
                           'Register untuk menikmati konten sesuai preferensi Anda.',
                           style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                              height: 1.5),
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                            height: 1.5,
+                          ),
                         ),
                         const SizedBox(height: 32),
-
-                        // ✅ FIX: tombol Google sekarang memanggil _onGoogleLogin
                         OutlinedButton.icon(
                           onPressed: isLoading ? null : _onGoogleLogin,
                           icon: isLoading
@@ -122,39 +154,52 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2, color: AppTheme.primary),
+                                    strokeWidth: 2,
+                                    color: AppTheme.primary,
+                                  ),
                                 )
-                              : const Text('G',
+                              : const Text(
+                                  'G',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                      color: AppTheme.primary)),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: AppTheme.primary,
+                                  ),
+                                ),
                           label: const Text('Daftar dengan Google'),
                           style: OutlinedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 48),
                             foregroundColor: AppTheme.primary,
                             side: const BorderSide(color: AppTheme.primary),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-                        Row(children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text('atau register dengan',
+                        Row(
+                          children: [
+                            const Expanded(child: Divider()),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                'atau register dengan',
                                 style: TextStyle(
-                                    color: Colors.grey[500], fontSize: 13)),
-                          ),
-                          const Expanded(child: Divider()),
-                        ]),
+                                  color: Colors.grey[500],
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            const Expanded(child: Divider()),
+                          ],
+                        ),
                         const SizedBox(height: 20),
                         TextField(
                           controller: _nameController,
-                          decoration:
-                              const InputDecoration(labelText: 'Nama Lengkap'),
+                          decoration: const InputDecoration(
+                            labelText: 'Nama Lengkap',
+                          ),
                         ),
                         const SizedBox(height: 14),
                         TextField(
@@ -166,14 +211,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         TextField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
+                          onSubmitted: (_) => _onRegister(),
                           decoration: InputDecoration(
                             labelText: 'Password',
                             suffixIcon: IconButton(
-                              icon: Icon(_obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
                               onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
                             ),
                           ),
                         ),
@@ -201,18 +250,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
                         Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('Sudah punya akun? ',
-                                  style: TextStyle(color: Colors.grey[600])),
-                              GestureDetector(
-                                onTap: () => context.go('/login'),
-                                child: const Text('Log in here',
-                                    style: TextStyle(
-                                        color: AppTheme.primary,
-                                        fontWeight: FontWeight.w600)),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Sudah punya akun? ',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.go(
+                                '/login?redirect=$redirectQuery',
                               ),
-                            ]),
+                              child: const Text(
+                                'Log in here',
+                                style: TextStyle(
+                                  color: AppTheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

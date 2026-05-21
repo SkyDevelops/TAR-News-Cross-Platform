@@ -15,8 +15,13 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(profileProvider);
     final user = Supabase.instance.client.auth.currentUser;
+
+    if (user == null) {
+      return const _ProfileLoginRedirect();
+    }
+
+    final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -31,9 +36,9 @@ class ProfileScreen extends ConsumerWidget {
       ),
       body: profileAsync.when(
         loading: () => const Center(
-            child: CircularProgressIndicator(color: AppTheme.primary)),
-        error: (_, __) =>
-            const Center(child: Text('Gagal memuat profil')),
+          child: CircularProgressIndicator(color: AppTheme.primary),
+        ),
+        error: (_, __) => const Center(child: Text('Gagal memuat profil')),
         data: (profile) => SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -41,57 +46,71 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               CircleAvatar(
                 radius: 52,
-                backgroundColor:
-                    AppTheme.primary.withValues(alpha: 0.15),
+                backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
                 backgroundImage: (profile?.avatarUrl != null &&
                         profile!.avatarUrl!.isNotEmpty)
                     ? NetworkImage(profile.avatarUrl!) as ImageProvider
                     : null,
-                child: (profile?.avatarUrl == null ||
-                        profile!.avatarUrl!.isEmpty)
-                    ? const Icon(Icons.person,
-                        size: 52, color: AppTheme.primary)
-                    : null,
+                child:
+                    (profile?.avatarUrl == null || profile!.avatarUrl!.isEmpty)
+                        ? const Icon(
+                            Icons.person,
+                            size: 52,
+                            color: AppTheme.primary,
+                          )
+                        : null,
               ),
               const SizedBox(height: 16),
               Text(
-                profile?.fullName ?? user?.email ?? 'Pengguna',
+                profile?.fullName ?? user.email ?? 'Pengguna',
                 style: const TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.w700),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 4),
-              Text(user?.email ?? '',
-                  style: TextStyle(
-                      color: Colors.grey[500], fontSize: 14)),
+              Text(
+                user.email ?? '',
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 14,
+                ),
+              ),
               if (profile?.username != null &&
                   profile!.username!.isNotEmpty) ...[
                 const SizedBox(height: 2),
-                Text('@${profile.username!}',
-                    style: TextStyle(
-                        color: AppTheme.primary.withValues(alpha: 0.8),
-                        fontSize: 13)),
+                Text(
+                  '@${profile.username!}',
+                  style: TextStyle(
+                    color: AppTheme.primary.withValues(alpha: 0.8),
+                    fontSize: 13,
+                  ),
+                ),
               ],
-              if (profile?.bio != null &&
-                  profile!.bio!.isNotEmpty) ...[
+              if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                Text(profile.bio!,
-                    style: TextStyle(
-                        color: Colors.grey[600], fontSize: 14),
-                    textAlign: TextAlign.center),
+                Text(
+                  profile.bio!,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ],
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () =>
-                      _showEditSheet(context, ref, profile),
+                  onPressed: () => _showEditSheet(context, ref, profile),
                   icon: const Icon(Icons.edit_outlined, size: 18),
                   label: const Text('Edit Profil'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.primary,
                     side: const BorderSide(color: AppTheme.primary),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
@@ -120,13 +139,20 @@ class ProfileScreen extends ConsumerWidget {
                 color: Colors.red,
                 onTap: () async {
                   await ref.read(authProvider.notifier).logout();
-                  if (context.mounted) context.go('/register');
+                  if (context.mounted) {
+                    context.go(
+                        '/login?redirect=${Uri.encodeComponent('/home/profile')}');
+                  }
                 },
               ),
               const SizedBox(height: 24),
-              Text('© 2025 TAR News. All Rights Reserved.',
-                  style: TextStyle(
-                      color: Colors.grey[400], fontSize: 12)),
+              Text(
+                '© 2025 TAR News. All Rights Reserved.',
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 12,
+                ),
+              ),
             ],
           ),
         ),
@@ -144,11 +170,42 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ── Sheet widget ──────────────────────────────────────────────────────────────
+class _ProfileLoginRedirect extends StatefulWidget {
+  const _ProfileLoginRedirect();
+
+  @override
+  State<_ProfileLoginRedirect> createState() => _ProfileLoginRedirectState();
+}
+
+class _ProfileLoginRedirectState extends State<_ProfileLoginRedirect> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.go('/login?redirect=${Uri.encodeComponent('/home/profile')}');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(color: AppTheme.primary),
+      ),
+    );
+  }
+}
+
 class _EditProfileSheet extends StatefulWidget {
   final dynamic profile;
   final WidgetRef ref;
-  const _EditProfileSheet({required this.profile, required this.ref});
+
+  const _EditProfileSheet({
+    required this.profile,
+    required this.ref,
+  });
 
   @override
   State<_EditProfileSheet> createState() => _EditProfileSheetState();
@@ -166,10 +223,8 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
   @override
   void initState() {
     super.initState();
-    _nameCtrl =
-        TextEditingController(text: widget.profile?.fullName ?? '');
-    _usernameCtrl =
-        TextEditingController(text: widget.profile?.username ?? '');
+    _nameCtrl = TextEditingController(text: widget.profile?.fullName ?? '');
+    _usernameCtrl = TextEditingController(text: widget.profile?.username ?? '');
     _bioCtrl = TextEditingController(text: widget.profile?.bio ?? '');
   }
 
@@ -192,9 +247,11 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
       maxHeight: 512,
       imageQuality: 85,
     );
+
     if (picked == null) return;
 
     final bytes = await picked.readAsBytes();
+
     setState(() {
       _imageBytes = bytes;
       _imageFileName = picked.name;
@@ -237,9 +294,7 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
         .replaceAll(RegExp(r'[^a-z]'), 'jpg');
     final path = '${user.id}/avatar.$ext';
 
-    await Supabase.instance.client.storage
-        .from('avatars')
-        .uploadBinary(
+    await Supabase.instance.client.storage.from('avatars').uploadBinary(
           path,
           _imageBytes!,
           fileOptions: FileOptions(
@@ -248,24 +303,27 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
           ),
         );
 
-    final url = Supabase.instance.client.storage
-        .from('avatars')
-        .getPublicUrl(path);
+    final url =
+        Supabase.instance.client.storage.from('avatars').getPublicUrl(path);
 
     return '$url?t=${DateTime.now().millisecondsSinceEpoch}';
   }
 
   Future<void> _save() async {
     setState(() => _isLoading = true);
+
     try {
       final avatarUrl = await _uploadAvatar();
+
       await updateProfile({
         'full_name': _nameCtrl.text.trim(),
         'username': _usernameCtrl.text.trim(),
         'bio': _bioCtrl.text.trim(),
         if (avatarUrl != null) 'avatar_url': avatarUrl,
       });
+
       widget.ref.invalidate(profileProvider);
+
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
@@ -286,16 +344,13 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      padding:
-          EdgeInsets.fromLTRB(24, 16, 24, 24 + bottomPadding),
+      padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + bottomPadding),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
             Container(
               width: 40,
               height: 4,
@@ -305,33 +360,36 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text('Edit Profil',
-                style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w700)),
+            const Text(
+              'Edit Profil',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 24),
-
-            // ── Avatar picker ──
             GestureDetector(
               onTap: _pickImage,
               child: Stack(
                 children: [
                   CircleAvatar(
                     radius: 48,
-                    backgroundColor:
-                        AppTheme.primary.withValues(alpha: 0.12),
+                    backgroundColor: AppTheme.primary.withValues(alpha: 0.12),
                     backgroundImage: _imageBytes != null
                         ? MemoryImage(_imageBytes!) as ImageProvider
                         : (widget.profile?.avatarUrl != null &&
                                 widget.profile!.avatarUrl!.isNotEmpty)
-                            ? NetworkImage(
-                                    widget.profile!.avatarUrl!)
+                            ? NetworkImage(widget.profile!.avatarUrl!)
                                 as ImageProvider
                             : null,
                     child: (_imageBytes == null &&
                             (widget.profile?.avatarUrl == null ||
                                 widget.profile!.avatarUrl!.isEmpty))
-                        ? const Icon(Icons.person,
-                            size: 48, color: AppTheme.primary)
+                        ? const Icon(
+                            Icons.person,
+                            size: 48,
+                            color: AppTheme.primary,
+                          )
                         : null,
                   ),
                   Positioned(
@@ -343,20 +401,25 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
                         color: AppTheme.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.camera_alt,
-                          size: 14, color: Colors.white),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        size: 14,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 6),
-            Text('Tap untuk ganti foto',
-                style:
-                    TextStyle(color: Colors.grey[500], fontSize: 12)),
+            Text(
+              'Tap untuk ganti foto',
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 12,
+              ),
+            ),
             const SizedBox(height: 24),
-
-            // ── Form fields ──
             _buildField(
               controller: _nameCtrl,
               label: 'Nama Lengkap',
@@ -376,22 +439,18 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
               maxLines: 3,
             ),
             const SizedBox(height: 28),
-
-            // ── Tombol ──
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () => Navigator.pop(context),
+                    onPressed: _isLoading ? null : () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.grey[600],
                       side: BorderSide(color: Colors.grey.shade300),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: const Text('Batal'),
                   ),
@@ -404,20 +463,23 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
                       backgroundColor: AppTheme.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: _isLoading
                         ? const SizedBox(
                             height: 18,
                             width: 18,
                             child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2),
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
                           )
-                        : const Text('Simpan',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600)),
+                        : const Text(
+                            'Simpan',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                   ),
                 ),
               ],
@@ -451,17 +513,17 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide:
-              const BorderSide(color: AppTheme.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14, vertical: 12),
+          horizontal: 14,
+          vertical: 12,
+        ),
       ),
     );
   }
 }
 
-// ── Menu item ─────────────────────────────────────────────────────────────────
 class _ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -478,15 +540,26 @@ class _ProfileMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = color ?? Theme.of(context).textTheme.bodyLarge?.color;
+
     return ListTile(
       leading: Icon(icon, color: c, size: 22),
-      title: Text(label,
-          style: TextStyle(color: c, fontWeight: FontWeight.w500)),
-      trailing: Icon(Icons.chevron_right,
-          color: Colors.grey[400], size: 20),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: c,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: Colors.grey[400],
+        size: 20,
+      ),
       onTap: onTap,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 0,
+        vertical: 2,
+      ),
     );
   }
 }

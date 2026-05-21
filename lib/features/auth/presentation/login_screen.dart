@@ -17,6 +17,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  String _redirectPath(BuildContext context) {
+    final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+
+    if (redirect != null && redirect.startsWith('/')) {
+      return redirect;
+    }
+
+    return '/home';
+  }
+
+  String _redirectQuery(BuildContext context) {
+    return Uri.encodeComponent(_redirectPath(context));
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -32,13 +46,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       return;
     }
+
     ref.read(authProvider.notifier).login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
   }
 
-  // ✅ TAMBAHAN: panggil loginWithGoogle
   void _onGoogleLogin() {
     ref.read(authProvider.notifier).loginWithGoogle();
   }
@@ -47,14 +61,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isLoading = authState.status == AuthStatus.loading;
+    final redirectPath = _redirectPath(context);
+    final redirectQuery = _redirectQuery(context);
 
     ref.listen<AuthState>(authProvider, (_, next) {
-      if (next.status == AuthStatus.success) context.go('/home');
+      if (next.status == AuthStatus.success) {
+        context.go(redirectPath);
+      }
+
       if (next.status == AuthStatus.error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next.errorMessage ?? 'Terjadi kesalahan'),
-          backgroundColor: Colors.red[700],
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage ?? 'Terjadi kesalahan'),
+            backgroundColor: Colors.red[700],
+          ),
+        );
         ref.read(authProvider.notifier).reset();
       }
     });
@@ -71,17 +92,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     Icon(Icons.newspaper, size: 80, color: Colors.white),
                     SizedBox(height: 24),
-                    Text('TAR NEWS',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 40,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 4)),
+                    Text(
+                      'TAR NEWS',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4,
+                      ),
+                    ),
                     SizedBox(height: 12),
-                    Text('Berita terpercaya, kapan saja\ndan di mana saja.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.white70, fontSize: 16, height: 1.6)),
+                    Text(
+                      'Berita terpercaya, kapan saja\ndan di mana saja.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        height: 1.6,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -99,21 +128,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         const TarNewsLogo(),
                         const SizedBox(height: 32),
                         IconButton(
-                          onPressed: () => context.go('/register'),
+                          onPressed: () => context.go('/home'),
                           icon: const Icon(Icons.arrow_back),
                           padding: EdgeInsets.zero,
                         ),
                         const SizedBox(height: 12),
-                        const Text('Log in',
-                            style: TextStyle(
-                                fontSize: 26, fontWeight: FontWeight.w700)),
+                        const Text(
+                          'Log in',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         const SizedBox(height: 6),
-                        Text('Log in untuk menikmati layanan kami.',
-                            style: TextStyle(
-                                color: Colors.grey[600], fontSize: 14)),
+                        Text(
+                          'Log in untuk membuka profil dan menikmati fitur personal.',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                            height: 1.5,
+                          ),
+                        ),
                         const SizedBox(height: 32),
-
-                        // ✅ FIX: tombol Google sekarang memanggil _onGoogleLogin
                         OutlinedButton.icon(
                           onPressed: isLoading ? null : _onGoogleLogin,
                           icon: isLoading
@@ -121,34 +157,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2, color: AppTheme.primary),
+                                    strokeWidth: 2,
+                                    color: AppTheme.primary,
+                                  ),
                                 )
-                              : const Text('G',
+                              : const Text(
+                                  'G',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                      color: AppTheme.primary)),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: AppTheme.primary,
+                                  ),
+                                ),
                           label: const Text('Login dengan Google'),
                           style: OutlinedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 48),
                             foregroundColor: AppTheme.primary,
                             side: const BorderSide(color: AppTheme.primary),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-                        Row(children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text('atau log in dengan',
+                        Row(
+                          children: [
+                            const Expanded(child: Divider()),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                'atau log in dengan',
                                 style: TextStyle(
-                                    color: Colors.grey[500], fontSize: 13)),
-                          ),
-                          const Expanded(child: Divider()),
-                        ]),
+                                  color: Colors.grey[500],
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            const Expanded(child: Divider()),
+                          ],
+                        ),
                         const SizedBox(height: 20),
                         TextField(
                           controller: _emailController,
@@ -163,11 +211,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             suffixIcon: IconButton(
-                              icon: Icon(_obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
                               onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
                             ),
                           ),
                         ),
@@ -175,8 +226,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () {},
-                            child: const Text('Lupa Password?',
-                                style: TextStyle(color: AppTheme.primary)),
+                            child: const Text(
+                              'Lupa Password?',
+                              style: TextStyle(color: AppTheme.primary),
+                            ),
                           ),
                         ),
                         ElevatedButton(
@@ -202,24 +255,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
                         Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('Belum punya akun? ',
-                                  style: TextStyle(color: Colors.grey[600])),
-                              GestureDetector(
-                                onTap: () => context.go('/register'),
-                                child: const Text('Register here',
-                                    style: TextStyle(
-                                        color: AppTheme.primary,
-                                        fontWeight: FontWeight.w600)),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Belum punya akun? ',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.go(
+                                '/register?redirect=$redirectQuery',
                               ),
-                            ]),
+                              child: const Text(
+                                'Register here',
+                                style: TextStyle(
+                                  color: AppTheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 24),
                         Center(
                           child: Text(
-                              'Syarat dan Ketentuan · Kebijakan Privasi',
-                              style: TextStyle(
-                                  color: Colors.grey[400], fontSize: 12)),
+                            'Syarat dan Ketentuan · Kebijakan Privasi',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
                       ],
                     ),
