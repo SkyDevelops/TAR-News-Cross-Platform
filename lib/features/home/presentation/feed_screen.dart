@@ -47,10 +47,12 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
   @override
   Widget build(BuildContext context) {
     final articlesAsync = ref.watch(articlesProvider);
-    final width = MediaQuery.of(context).size.width;
+    final mediaQuery = MediaQuery.of(context);
+    final width = mediaQuery.size.width;
 
     final isDesktop = width >= 1050;
     final isTablet = width >= 700 && width < 1050;
+    final isMobile = !isDesktop && !isTablet;
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -111,7 +113,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(
                           isDesktop ? 20 : 16,
-                          0,
+                          isMobile ? mediaQuery.padding.top + 12 : 0,
                           isDesktop ? 20 : 16,
                           0,
                         ),
@@ -157,6 +159,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
                                     _openArticle(context, article),
                                 onBookmark: _bookmark,
                               )
+                            else if (isMobile)
+                              _MobileArticleList(
+                                articles: gridArticles.isEmpty
+                                    ? sideArticles
+                                    : gridArticles,
+                                onOpen: (article) =>
+                                    _openArticle(context, article),
+                                onBookmark: _bookmark,
+                              )
                             else
                               _ResponsiveGrid(
                                 articles: gridArticles.isEmpty
@@ -196,15 +207,23 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
                           children: [
                             const _SectionHeader(title: 'Latest News'),
                             const SizedBox(height: 14),
-                            Column(
-                              children: latest.take(6).map((article) {
-                                return _NewsListRow(
-                                  article: article,
-                                  onTap: () => _openArticle(context, article),
-                                  onBookmark: () => _bookmark(article),
-                                );
-                              }).toList(),
-                            ),
+                            if (isMobile)
+                              _MobileArticleList(
+                                articles: latest.take(6).toList(),
+                                onOpen: (article) =>
+                                    _openArticle(context, article),
+                                onBookmark: _bookmark,
+                              )
+                            else
+                              Column(
+                                children: latest.take(6).map((article) {
+                                  return _NewsListRow(
+                                    article: article,
+                                    onTap: () => _openArticle(context, article),
+                                    onBookmark: () => _bookmark(article),
+                                  );
+                                }).toList(),
+                              ),
                           ],
                         ),
                       ),
@@ -360,23 +379,352 @@ class _MobileHeadlineLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _HeroNewsCard(
+        _MobileHeroNewsCard(
           article: hero,
-          height: 300,
           onTap: () => onOpen(hero),
           onBookmark: () => onBookmark(hero),
         ),
-        const SizedBox(height: 14),
-        Column(
-          children: articles.map((article) {
-            return _NewsListRow(
-              article: article,
-              onTap: () => onOpen(article),
-              onBookmark: () => onBookmark(article),
-            );
-          }).toList(),
+        const SizedBox(height: 12),
+        _MobileArticleList(
+          articles: articles,
+          onOpen: onOpen,
+          onBookmark: onBookmark,
         ),
       ],
+    );
+  }
+}
+
+class _MobileArticleList extends StatelessWidget {
+  final List<Article> articles;
+  final void Function(Article article) onOpen;
+  final Future<void> Function(Article article) onBookmark;
+
+  const _MobileArticleList({
+    required this.articles,
+    required this.onOpen,
+    required this.onBookmark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (articles.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      children: articles.map((article) {
+        return _MobileArticleTile(
+          article: article,
+          onTap: () => onOpen(article),
+          onBookmark: () => onBookmark(article),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _MobileHeroNewsCard extends StatelessWidget {
+  final Article article;
+  final VoidCallback onTap;
+  final VoidCallback onBookmark;
+
+  const _MobileHeroNewsCard({
+    required this.article,
+    required this.onTap,
+    required this.onBookmark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Material(
+        color: Colors.black,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            height: 260,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                NewsImage(
+                  url: article.imageUrl,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.02),
+                        Colors.black.withValues(alpha: 0.22),
+                        Colors.black.withValues(alpha: 0.9),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: _MobileBookmarkButton(
+                    isBookmarked: article.isBookmarked,
+                    onPressed: onBookmark,
+                    onDarkBackground: true,
+                  ),
+                ),
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (article.category != null)
+                        _MobileCategoryPill(
+                          label: article.category!.toUpperCase(),
+                          solid: true,
+                        ),
+                      const SizedBox(height: 8),
+                      Text(
+                        article.title,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 23,
+                          height: 1.16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      if ((article.summary ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 7),
+                        Text(
+                          article.summary!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.82),
+                            fontSize: 13,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      Text(
+                        article.timeAgo,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileArticleTile extends StatelessWidget {
+  final Article article;
+  final VoidCallback onTap;
+  final VoidCallback onBookmark;
+
+  const _MobileArticleTile({
+    required this.article,
+    required this.onTap,
+    required this.onBookmark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final imageWidth = screenWidth < 370 ? 104.0 : 118.0;
+    final imageHeight = screenWidth < 370 ? 84.0 : 92.0;
+    final borderColor =
+        isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE7E7E7);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1C1C1C) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                NewsImage(
+                  url: article.imageUrl,
+                  width: imageWidth,
+                  height: imageHeight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (article.category != null) ...[
+                        _MobileCategoryPill(label: article.category!),
+                        const SizedBox(height: 6),
+                      ],
+                      Text(
+                        article.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color:
+                              isDark ? Colors.white : const Color(0xFF202020),
+                          fontSize: 15.5,
+                          height: 1.25,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      if ((article.summary ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          article.summary!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isDark ? Colors.white60 : Colors.black54,
+                            fontSize: 12.5,
+                            height: 1.32,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 7),
+                      Text(
+                        article.timeAgo,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isDark ? Colors.white54 : Colors.black45,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 6),
+                _MobileBookmarkButton(
+                  isBookmarked: article.isBookmarked,
+                  onPressed: onBookmark,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileCategoryPill extends StatelessWidget {
+  final String label;
+  final bool solid;
+
+  const _MobileCategoryPill({
+    required this.label,
+    this.solid = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor =
+        solid ? AppTheme.primary : AppTheme.primary.withValues(alpha: 0.1);
+    final textColor = solid ? Colors.white : AppTheme.primary;
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 120),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: solid ? 9 : 8,
+            vertical: solid ? 5 : 4,
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: textColor,
+              fontSize: solid ? 11 : 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileBookmarkButton extends StatelessWidget {
+  final bool isBookmarked;
+  final VoidCallback onPressed;
+  final bool onDarkBackground;
+
+  const _MobileBookmarkButton({
+    required this.isBookmarked,
+    required this.onPressed,
+    this.onDarkBackground = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = isBookmarked
+        ? AppTheme.primary
+        : onDarkBackground
+            ? Colors.white
+            : Colors.grey;
+
+    return SizedBox(
+      width: 38,
+      height: 38,
+      child: IconButton(
+        onPressed: onPressed,
+        padding: EdgeInsets.zero,
+        style: IconButton.styleFrom(
+          backgroundColor:
+              onDarkBackground ? Colors.black.withValues(alpha: 0.42) : null,
+        ),
+        icon: Icon(
+          isBookmarked ? Icons.bookmark : Icons.bookmark_outline,
+          color: iconColor,
+          size: 23,
+        ),
+      ),
     );
   }
 }

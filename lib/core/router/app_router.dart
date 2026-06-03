@@ -13,59 +13,46 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = ValueNotifier<bool>(false);
 
   final supabaseClient = Supabase.instance.client;
-  supabaseClient.auth.onAuthStateChange.listen((_) {
+  final authSubscription = supabaseClient.auth.onAuthStateChange.listen((_) {
     notifier.value = !notifier.value;
+  });
+  ref.onDispose(() {
+    authSubscription.cancel();
+    notifier.dispose();
   });
 
   return GoRouter(
     initialLocation: '/home',
     refreshListenable: notifier,
     redirect: (context, state) {
+      final path = state.uri.path;
+      final isAuthRoute = path == '/login' || path == '/register';
+      final isLoggedIn = supabaseClient.auth.currentUser != null;
+
+      if (path == '/') return '/home';
+      if (path == '/home/search') return '/home';
+      if (isLoggedIn && isAuthRoute) return '/home';
+
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/register',
-        builder: (_, __) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (_, __) => const LoginScreen(),
-      ),
+      GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
+      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(
         path: '/home',
         builder: (_, __) => const MainScreen(),
         routes: [
           GoRoute(
-            path: 'search',
-            builder: (_, __) => const MainScreen(),
-          ),
-          GoRoute(
-            path: 'category/:slug',
-            builder: (_, __) => const MainScreen(),
-          ),
-          GoRoute(
-            path: 'bookmark',
-            builder: (_, __) => const MainScreen(),
-          ),
-          GoRoute(
-            path: 'profile',
-            builder: (_, __) => const MainScreen(),
-          ),
+              path: 'category/:slug', builder: (_, __) => const MainScreen()),
+          GoRoute(path: 'bookmark', builder: (_, __) => const MainScreen()),
+          GoRoute(path: 'profile', builder: (_, __) => const MainScreen()),
           GoRoute(
             path: 'article/:id',
-            builder: (_, state) => ArticleDetailScreen(
-              articleId: state.pathParameters['id']!,
-            ),
+            builder: (_, state) =>
+                ArticleDetailScreen(articleId: state.pathParameters['id']!),
           ),
-          GoRoute(
-            path: 'settings',
-            builder: (_, __) => const SettingScreen(),
-          ),
-          GoRoute(
-            path: 'about',
-            builder: (_, __) => const AboutScreen(),
-          ),
+          GoRoute(path: 'settings', builder: (_, __) => const SettingScreen()),
+          GoRoute(path: 'about', builder: (_, __) => const AboutScreen()),
         ],
       ),
     ],

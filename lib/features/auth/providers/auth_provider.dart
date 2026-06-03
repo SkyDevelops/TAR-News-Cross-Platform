@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,11 +17,7 @@ class AuthState {
     this.user,
   });
 
-  AuthState copyWith({
-    AuthStatus? status,
-    String? errorMessage,
-    User? user,
-  }) {
+  AuthState copyWith({AuthStatus? status, String? errorMessage, User? user}) {
     return AuthState(
       status: status ?? this.status,
       errorMessage: errorMessage,
@@ -29,11 +28,34 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier()
-      : super(AuthState(
-          user: Supabase.instance.client.auth.currentUser,
-        ));
+      : _supabase = Supabase.instance.client,
+        super(AuthState(user: Supabase.instance.client.auth.currentUser)) {
+    _authSubscription = _supabase.auth.onAuthStateChange.listen((data) {
+      final user = data.session?.user;
 
-  final _supabase = Supabase.instance.client;
+      if (user != null) {
+        state = state.copyWith(
+          status: AuthStatus.success,
+          errorMessage: null,
+          user: user,
+        );
+        return;
+      }
+
+      if (data.event == AuthChangeEvent.signedOut) {
+        state = const AuthState();
+      }
+    });
+  }
+
+  final SupabaseClient _supabase;
+  late final StreamSubscription<dynamic> _authSubscription;
+
+  @override
+  void dispose() {
+    _authSubscription.cancel();
+    super.dispose();
+  }
 
   Future<void> register({
     required String email,
@@ -52,15 +74,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(status: AuthStatus.error, errorMessage: e.message);
     } catch (_) {
       state = state.copyWith(
-          status: AuthStatus.error,
-          errorMessage: 'Terjadi kesalahan saat registrasi');
+        status: AuthStatus.error,
+        errorMessage: 'Terjadi kesalahan saat registrasi',
+      );
     }
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
     try {
       final res = await _supabase.auth.signInWithPassword(
@@ -76,18 +96,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(status: AuthStatus.error, errorMessage: msg);
     } catch (_) {
       state = state.copyWith(
-          status: AuthStatus.error,
-          errorMessage: 'Terjadi kesalahan saat login');
+        status: AuthStatus.error,
+        errorMessage: 'Terjadi kesalahan saat login',
+      );
     }
   }
 
-  // ✅ TAMBAHAN: Google Sign-In via Supabase OAuth
+  // âœ… TAMBAHAN: Google Sign-In via Supabase OAuth
   Future<void> loginWithGoogle() async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
     try {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'http://localhost:8080', // untuk web dev; ganti sesuai platform
+        redirectTo: kIsWeb ? Uri.base.origin : 'tarnews://login-callback',
         authScreenLaunchMode: LaunchMode.platformDefault,
       );
       // Supabase akan redirect browser ke Google lalu kembali ke app
@@ -97,8 +118,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(status: AuthStatus.error, errorMessage: e.message);
     } catch (e) {
       state = state.copyWith(
-          status: AuthStatus.error,
-          errorMessage: 'Gagal login dengan Google');
+        status: AuthStatus.error,
+        errorMessage: 'Gagal login dengan Google',
+      );
     }
   }
 
@@ -107,8 +129,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _supabase.auth.signOut();
       state = const AuthState();
     } catch (_) {
-      state =
-          state.copyWith(status: AuthStatus.error, errorMessage: 'Gagal logout');
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'Gagal logout',
+      );
     }
   }
 
@@ -117,8 +141,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-final authProvider =
-    StateNotifierProvider<AuthNotifier, AuthState>((ref) => AuthNotifier());
+final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
+  (ref) => AuthNotifier(),
+);
 
 final currentUserProvider = Provider<User?>((ref) {
   return Supabase.instance.client.auth.currentUser;

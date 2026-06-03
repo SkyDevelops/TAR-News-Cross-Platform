@@ -18,7 +18,7 @@ class ProfileScreen extends ConsumerWidget {
     final user = Supabase.instance.client.auth.currentUser;
 
     if (user == null) {
-      return const _ProfileLoginRedirect();
+      return const _ProfileLoginPrompt();
     }
 
     final profileAsync = ref.watch(profileProvider);
@@ -147,7 +147,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                '© 2025 TAR News. All Rights Reserved.',
+                'Â© 2025 TAR News. All Rights Reserved.',
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 12,
@@ -170,29 +170,76 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-class _ProfileLoginRedirect extends StatefulWidget {
-  const _ProfileLoginRedirect();
-
-  @override
-  State<_ProfileLoginRedirect> createState() => _ProfileLoginRedirectState();
-}
-
-class _ProfileLoginRedirectState extends State<_ProfileLoginRedirect> {
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.go('/login?redirect=${Uri.encodeComponent('/home/profile')}');
-    });
-  }
+class _ProfileLoginPrompt extends StatelessWidget {
+  const _ProfileLoginPrompt();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final redirectQuery = Uri.encodeComponent('/home/profile');
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const TarNewsLogo(),
+      ),
       body: Center(
-        child: CircularProgressIndicator(color: AppTheme.primary),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 42,
+                  backgroundColor: AppTheme.primary.withValues(alpha: 0.12),
+                  child: const Icon(
+                    Icons.person_outline,
+                    size: 44,
+                    color: AppTheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Masuk ke Akun',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Login untuk membuka profil dan fitur personal Anda.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => context.go('/login?redirect=$redirectQuery'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Login'),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: () =>
+                      context.go('/register?redirect=$redirectQuery'),
+                  child: const Text(
+                    'Belum punya akun? Daftar',
+                    style: TextStyle(color: AppTheme.primary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
