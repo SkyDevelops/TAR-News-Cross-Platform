@@ -6,6 +6,7 @@ import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/home/presentation/main_screen.dart';
 import '../../features/home/presentation/article_detail_screen.dart';
+import '../../features/home/presentation/search_screen.dart';
 import '../../features/settings/presentation/setting_screen.dart';
 import '../../features/about/presentation/about_screen.dart';
 
@@ -30,7 +31,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isLoggedIn = supabaseClient.auth.currentUser != null;
 
       if (path == '/') return '/home';
-      if (path == '/home/search') return '/home';
       if (isLoggedIn && isAuthRoute) return '/home';
 
       return null;
@@ -44,6 +44,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
               path: 'category/:slug', builder: (_, __) => const MainScreen()),
+          GoRoute(path: 'search', builder: (_, __) => const SearchScreen()),
           GoRoute(path: 'bookmark', builder: (_, __) => const MainScreen()),
           GoRoute(path: 'profile', builder: (_, __) => const MainScreen()),
           GoRoute(

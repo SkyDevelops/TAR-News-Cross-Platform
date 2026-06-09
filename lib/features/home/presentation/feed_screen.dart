@@ -35,7 +35,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
   }
 
   Future<void> _bookmark(Article article) async {
-    await toggleBookmark(article.id, article.isBookmarked);
+    final saved = await toggleBookmark(article.id, article.isBookmarked);
+    if (!saved) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login dulu untuk menyimpan bookmark')),
+      );
+      context.go('/login?redirect=${Uri.encodeComponent('/home')}');
+      return;
+    }
     ref.invalidate(articlesProvider);
     ref.invalidate(bookmarksProvider);
   }

@@ -94,6 +94,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     }
 
     return Scaffold(
+      appBar: _MobileMainAppBar(
+        currentIndex: currentIndex,
+        onHomeTap: () => context.go('/home'),
+        onSearchTap: () => context.go('/home/search'),
+        onProfileTap: () => context.go('/home/profile'),
+        onSettingsTap: () => context.go('/home/settings'),
+      ),
       body: IndexedStack(
         index: currentIndex,
         children: pages,
@@ -119,6 +126,66 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MobileMainAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  final int currentIndex;
+  final VoidCallback onHomeTap;
+  final VoidCallback onSearchTap;
+  final VoidCallback onProfileTap;
+  final VoidCallback onSettingsTap;
+
+  const _MobileMainAppBar({
+    required this.currentIndex,
+    required this.onHomeTap,
+    required this.onSearchTap,
+    required this.onProfileTap,
+    required this.onSettingsTap,
+  });
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return AppBar(
+      title: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onHomeTap,
+        child: const TarNewsLogo(),
+      ),
+      actions: [
+        if (currentIndex == 0)
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: onSearchTap,
+            tooltip: 'Search',
+          ),
+        IconButton(
+          icon: Icon(
+            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+          ),
+          onPressed: () => ref.read(themeModeProvider.notifier).toggle(),
+          tooltip: isDark ? 'Light Mode' : 'Dark Mode',
+        ),
+        if (currentIndex != 2)
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            onPressed: onProfileTap,
+            tooltip: 'Profile',
+          ),
+        if (currentIndex == 2)
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: onSettingsTap,
+            tooltip: 'Settings',
+          ),
+        const SizedBox(width: 4),
+      ],
     );
   }
 }
@@ -228,8 +295,18 @@ class _WebTopNavBarContentState extends ConsumerState<_WebTopNavBarContent> {
   }
 
   Future<void> _toggleBookmark(Article article) async {
-    await toggleBookmark(article.id, article.isBookmarked);
+    final saved = await toggleBookmark(article.id, article.isBookmarked);
+    if (!saved) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login dulu untuk menyimpan bookmark')),
+      );
+      context.go('/login?redirect=${Uri.encodeComponent('/home/search')}');
+      return;
+    }
     ref.invalidate(searchResultsProvider);
+    ref.invalidate(bookmarksProvider);
+    ref.invalidate(articlesProvider);
   }
 
   @override

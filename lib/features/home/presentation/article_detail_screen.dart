@@ -193,7 +193,19 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
               color: _isBookmarked ? AppTheme.primary : null,
             ),
             onPressed: () async {
-              await toggleBookmark(article.id, _isBookmarked);
+              final saved = await toggleBookmark(article.id, _isBookmarked);
+              if (!saved) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Login dulu untuk menyimpan bookmark'),
+                  ),
+                );
+                context.go(
+                  '/login?redirect=${Uri.encodeComponent('/home/article/${article.id}')}',
+                );
+                return;
+              }
               setState(() => _isBookmarked = !_isBookmarked);
               article.isBookmarked = _isBookmarked;
               widget.ref
@@ -396,8 +408,20 @@ class _ArticleWebViewState extends State<_ArticleWebView> {
               color: _isBookmarked ? AppTheme.primary : null,
             ),
             onPressed: () async {
-              await toggleBookmark(
+              final saved = await toggleBookmark(
                   widget.article.id, _isBookmarked);
+              if (!saved) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Login dulu untuk menyimpan bookmark'),
+                  ),
+                );
+                context.go(
+                  '/login?redirect=${Uri.encodeComponent('/home/article/${widget.article.id}')}',
+                );
+                return;
+              }
               setState(() => _isBookmarked = !_isBookmarked);
               widget.article.isBookmarked = _isBookmarked;
               widget.ref
@@ -475,7 +499,19 @@ class _ArticleTextViewState extends State<_ArticleTextView> {
                 ),
               ),
               onPressed: () async {
-                await toggleBookmark(article.id, _isBookmarked);
+                final saved = await toggleBookmark(article.id, _isBookmarked);
+                if (!saved) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Login dulu untuk menyimpan bookmark'),
+                    ),
+                  );
+                  context.go(
+                    '/login?redirect=${Uri.encodeComponent('/home/article/${article.id}')}',
+                  );
+                  return;
+                }
                 setState(() => _isBookmarked = !_isBookmarked);
                 article.isBookmarked = _isBookmarked;
                 widget.ref

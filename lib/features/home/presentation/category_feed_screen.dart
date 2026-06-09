@@ -16,8 +16,22 @@ class CategoryFeedScreen extends ConsumerWidget {
 
   _CategoryInfo get _info => _CategoryInfo.fromSlug(slug);
 
-  Future<void> _bookmark(WidgetRef ref, Article article) async {
-    await toggleBookmark(article.id, article.isBookmarked);
+  Future<void> _bookmark(
+    BuildContext context,
+    WidgetRef ref,
+    Article article,
+  ) async {
+    final saved = await toggleBookmark(article.id, article.isBookmarked);
+    if (!saved) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login dulu untuk menyimpan bookmark')),
+      );
+      context.go(
+        '/login?redirect=${Uri.encodeComponent('/home/category/$slug')}',
+      );
+      return;
+    }
     ref.invalidate(articlesByCategoryProvider(_info.queryCategory));
     ref.invalidate(articlesProvider);
     ref.invalidate(bookmarksProvider);
@@ -66,7 +80,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -77,7 +91,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -88,7 +102,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -99,7 +113,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -110,7 +124,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -121,7 +135,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -132,7 +146,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -143,7 +157,7 @@ class CategoryFeedScreen extends ConsumerWidget {
                 isDesktop: isDesktop,
                 isTablet: isTablet,
                 onOpen: (article) => _openArticle(context, article),
-                onBookmark: (article) => _bookmark(ref, article),
+                onBookmark: (article) => _bookmark(context, ref, article),
               );
             }
 
@@ -153,7 +167,7 @@ class CategoryFeedScreen extends ConsumerWidget {
               isDesktop: isDesktop,
               isTablet: isTablet,
               onOpen: (article) => _openArticle(context, article),
-              onBookmark: (article) => _bookmark(ref, article),
+              onBookmark: (article) => _bookmark(context, ref, article),
             );
           },
         ),

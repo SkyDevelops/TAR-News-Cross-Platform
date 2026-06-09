@@ -69,6 +69,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
         data: {'full_name': fullName ?? ''},
       );
+
+      if (res.session == null) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: 'Registrasi berhasil. Cek email untuk konfirmasi akun.',
+          user: res.user,
+        );
+        return;
+      }
+
       state = state.copyWith(status: AuthStatus.success, user: res.user);
     } on AuthException catch (e) {
       state = state.copyWith(status: AuthStatus.error, errorMessage: e.message);
@@ -87,6 +97,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
         email: email,
         password: password,
       );
+      if (res.user == null) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: 'Login gagal. Coba lagi.',
+        );
+        return;
+      }
       state = state.copyWith(status: AuthStatus.success, user: res.user);
     } on AuthException catch (e) {
       String msg = e.message;

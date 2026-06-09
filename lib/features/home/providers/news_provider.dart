@@ -107,10 +107,11 @@ final bookmarksProvider = FutureProvider<List<Article>>((ref) async {
 });
 
 // ── Toggle bookmark ───────────────────────────────────────────────────────────
-Future<void> toggleBookmark(
+Future<bool> toggleBookmark(
     String articleId, bool isCurrentlyBookmarked) async {
   final user = _supabase.auth.currentUser;
-  if (user == null) return;
+  if (user == null) return false;
+
   if (isCurrentlyBookmarked) {
     await _supabase
         .from('bookmarks')
@@ -123,6 +124,8 @@ Future<void> toggleBookmark(
       'article_id': articleId,
     });
   }
+
+  return true;
 }
 
 // ── Profile ───────────────────────────────────────────────────────────────────
