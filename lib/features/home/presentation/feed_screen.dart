@@ -10,7 +10,6 @@ part 'feed_parts/feed_layout_widgets.dart';
 part 'feed_parts/feed_news_widgets.dart';
 part 'feed_parts/feed_misc_widgets.dart';
 
-
 class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
 
@@ -57,6 +56,10 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
     context.go('/home/article/${article.id}');
   }
 
+  void _retryArticles() {
+    ref.invalidate(articlesProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final articlesAsync = ref.watch(articlesProvider);
@@ -75,181 +78,157 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
         color: AppTheme.primary,
         onRefresh: () => ref.refresh(articlesProvider.future),
         child: articlesAsync.when(
-          loading: () => const _LoadingHome(),
-          error: (e, _) => ListView(
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-              Center(
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.wifi_off_outlined,
-                      size: 48,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Gagal memuat berita',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () => ref.invalidate(articlesProvider),
-                      child: const Text(
-                        'Coba lagi',
-                        style: TextStyle(color: AppTheme.primary),
-                      ),
-                    ),
-                  ],
+                loading: () => const _LoadingHome(),
+                error: (e, _) => _NetworkErrorHome(
+                  error: e,
+                  onRetry: _retryArticles,
                 ),
-              ),
-            ],
-          ),
-          data: (articles) {
-            if (articles.isEmpty) {
-              return const Center(child: Text('Belum ada berita'));
-            }
+                data: (articles) {
+                  if (articles.isEmpty) {
+                    return const Center(child: Text('Belum ada berita'));
+                  }
 
-            final hero = articles.first;
-            final sideArticles = articles.skip(1).take(4).toList();
-            final latest = articles.skip(5).toList();
-            final gridArticles = latest.take(6).toList();
-            final videoArticles = articles.skip(2).take(8).toList();
-            final popularArticles = articles.skip(1).take(5).toList();
+                  final hero = articles.first;
+                  final sideArticles = articles.skip(1).take(4).toList();
+                  final latest = articles.skip(5).toList();
+                  final gridArticles = latest.take(6).toList();
+                  final videoArticles = articles.skip(2).take(8).toList();
+                  final popularArticles = articles.skip(1).take(5).toList();
 
-            return CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1180),
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          isDesktop ? 20 : 16,
-                          isMobile ? mediaQuery.padding.top + 12 : 0,
-                          isDesktop ? 20 : 16,
-                          0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (isDesktop)
-                              _DesktopHeadlineLayout(
-                                hero: hero,
-                                sideArticles: sideArticles,
-                                popularArticles: popularArticles,
-                                onOpen: (article) =>
-                                    _openArticle(context, article),
-                                onBookmark: _bookmark,
-                              )
-                            else if (isTablet)
-                              _TabletHeadlineLayout(
-                                hero: hero,
-                                sideArticles: sideArticles,
-                                onOpen: (article) =>
-                                    _openArticle(context, article),
-                                onBookmark: _bookmark,
-                              )
-                            else
-                              _MobileHeadlineLayout(
-                                hero: hero,
-                                articles: sideArticles,
-                                onOpen: (article) =>
-                                    _openArticle(context, article),
-                                onBookmark: _bookmark,
+                  return CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1180),
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                isDesktop ? 20 : 16,
+                                isMobile ? mediaQuery.padding.top + 12 : 0,
+                                isDesktop ? 20 : 16,
+                                0,
                               ),
-                            const SizedBox(height: 30),
-                            _SectionHeader(
-                              title: 'Berita Terkini',
-                              onSeeAll: () => context.go('/home'),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isDesktop)
+                                    _DesktopHeadlineLayout(
+                                      hero: hero,
+                                      sideArticles: sideArticles,
+                                      popularArticles: popularArticles,
+                                      onOpen: (article) =>
+                                          _openArticle(context, article),
+                                      onBookmark: _bookmark,
+                                    )
+                                  else if (isTablet)
+                                    _TabletHeadlineLayout(
+                                      hero: hero,
+                                      sideArticles: sideArticles,
+                                      onOpen: (article) =>
+                                          _openArticle(context, article),
+                                      onBookmark: _bookmark,
+                                    )
+                                  else
+                                    _MobileHeadlineLayout(
+                                      hero: hero,
+                                      articles: sideArticles,
+                                      onOpen: (article) =>
+                                          _openArticle(context, article),
+                                      onBookmark: _bookmark,
+                                    ),
+                                  const SizedBox(height: 30),
+                                  _SectionHeader(
+                                    title: 'Berita Terkini',
+                                    onSeeAll: () => context.go('/home'),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  if (isDesktop)
+                                    _DesktopLatestLayout(
+                                      articles: latest,
+                                      popularArticles: popularArticles,
+                                      onOpen: (article) =>
+                                          _openArticle(context, article),
+                                      onBookmark: _bookmark,
+                                    )
+                                  else if (isMobile)
+                                    _MobileArticleList(
+                                      articles: gridArticles.isEmpty
+                                          ? sideArticles
+                                          : gridArticles,
+                                      onOpen: (article) =>
+                                          _openArticle(context, article),
+                                      onBookmark: _bookmark,
+                                    )
+                                  else
+                                    _ResponsiveGrid(
+                                      articles: gridArticles.isEmpty
+                                          ? sideArticles
+                                          : gridArticles,
+                                      columns: isTablet ? 2 : 1,
+                                      onOpen: (article) =>
+                                          _openArticle(context, article),
+                                      onBookmark: _bookmark,
+                                    ),
+                                  const SizedBox(height: 32),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 14),
-                            if (isDesktop)
-                              _DesktopLatestLayout(
-                                articles: latest,
-                                popularArticles: popularArticles,
-                                onOpen: (article) =>
-                                    _openArticle(context, article),
-                                onBookmark: _bookmark,
-                              )
-                            else if (isMobile)
-                              _MobileArticleList(
-                                articles: gridArticles.isEmpty
-                                    ? sideArticles
-                                    : gridArticles,
-                                onOpen: (article) =>
-                                    _openArticle(context, article),
-                                onBookmark: _bookmark,
-                              )
-                            else
-                              _ResponsiveGrid(
-                                articles: gridArticles.isEmpty
-                                    ? sideArticles
-                                    : gridArticles,
-                                columns: isTablet ? 2 : 1,
-                                onOpen: (article) =>
-                                    _openArticle(context, article),
-                                onBookmark: _bookmark,
-                              ),
-                            const SizedBox(height: 32),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _VideoSection(
-                    articles: videoArticles,
-                    onOpen: (article) => _openArticle(context, article),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1180),
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          isDesktop ? 20 : 16,
-                          30,
-                          isDesktop ? 20 : 16,
-                          34,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const _SectionHeader(title: 'Latest News'),
-                            const SizedBox(height: 14),
-                            if (isMobile)
-                              _MobileArticleList(
-                                articles: latest.take(6).toList(),
-                                onOpen: (article) =>
-                                    _openArticle(context, article),
-                                onBookmark: _bookmark,
-                              )
-                            else
-                              Column(
-                                children: latest.take(6).map((article) {
-                                  return _NewsListRow(
-                                    article: article,
-                                    onTap: () => _openArticle(context, article),
-                                    onBookmark: () => _bookmark(article),
-                                  );
-                                }).toList(),
-                              ),
-                          ],
+                      SliverToBoxAdapter(
+                        child: _VideoSection(
+                          articles: videoArticles,
+                          onOpen: (article) => _openArticle(context, article),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                const SliverToBoxAdapter(
-                  child: _HomeFooter(),
-                ),
-              ],
-            );
-          },
-        ),
+                      SliverToBoxAdapter(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1180),
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                isDesktop ? 20 : 16,
+                                30,
+                                isDesktop ? 20 : 16,
+                                34,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const _SectionHeader(title: 'Latest News'),
+                                  const SizedBox(height: 14),
+                                  if (isMobile)
+                                    _MobileArticleList(
+                                      articles: latest.take(6).toList(),
+                                      onOpen: (article) =>
+                                          _openArticle(context, article),
+                                      onBookmark: _bookmark,
+                                    )
+                                  else
+                                    Column(
+                                      children: latest.take(6).map((article) {
+                                        return _NewsListRow(
+                                          article: article,
+                                          onTap: () =>
+                                              _openArticle(context, article),
+                                          onBookmark: () => _bookmark(article),
+                                        );
+                                      }).toList(),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: _HomeFooter(),
+                      ),
+                    ],
+                  );
+                },
+              ),
       ),
     );
   }

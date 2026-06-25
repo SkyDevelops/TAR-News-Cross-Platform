@@ -204,6 +204,140 @@ class _SolidCategoryLabel extends StatelessWidget {
   }
 }
 
+class _NetworkErrorHome extends StatelessWidget {
+  final Object error;
+  final VoidCallback onRetry;
+
+  const _NetworkErrorHome({
+    required this.error,
+    required this.onRetry,
+  });
+
+  bool get _isNetworkError {
+    final message = error.toString().toLowerCase();
+    return message.contains('socket') ||
+        message.contains('network') ||
+        message.contains('connection') ||
+        message.contains('timeout') ||
+        message.contains('host') ||
+        message.contains('wifi');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
+    final mutedColor = isDark ? Colors.white70 : const Color(0xFF606060);
+    final cardColor = isDark ? const Color(0xFF1C1C1C) : Colors.white;
+    final borderColor =
+        isDark ? const Color(0xFF303030) : const Color(0xFFE4E4E4);
+
+    final title =
+        _isNetworkError ? 'Koneksi Bermasalah' : 'Gagal Memuat Berita';
+    final message = _isNetworkError
+        ? 'Periksa WiFi atau data seluler kamu, lalu coba muat ulang berita.'
+        : 'Terjadi kendala saat mengambil data berita. Silakan coba lagi.';
+    final icon =
+        _isNetworkError ? Icons.wifi_off_rounded : Icons.cloud_off_rounded;
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 96),
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor),
+                boxShadow: [
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: AppTheme.primary,
+                      size: 34,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: onRetry,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text(
+                        'Coba Lagi',
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Tarik layar ke bawah untuk refresh.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _HomeFooter extends StatelessWidget {
   const _HomeFooter();
 
