@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../core/models/models.dart';
 
 final _supabase = Supabase.instance.client;
@@ -25,10 +28,10 @@ Future<List<Article>> _withBookmarkStatus(List<Article> articles) async {
 
 // ── All articles — auto-refresh setiap 30 detik ──────────────────────────────
 final articlesProvider = FutureProvider<List<Article>>((ref) async {
-  // Setelah 30 detik, provider otomatis fetch ulang
-  Future.delayed(const Duration(seconds: 30), () {
-    ref.invalidateSelf();
-  });
+  // Setelah 30 detik, provider otomatis fetch ulang.
+  // Timer dibatalkan saat provider dispose agar tidak ada callback tertinggal.
+  final timer = Timer(const Duration(seconds: 30), ref.invalidateSelf);
+  ref.onDispose(timer.cancel);
 
   final data = await _supabase
       .from('articles')
@@ -62,10 +65,16 @@ final searchResultsProvider = FutureProvider<List<Article>>((ref) async {
 
   // Query ke semua artikel (tidak ada limit ketat)
   // ilike di title ATAU summary ATAU source_name
+  final cleanQuery = query.trim().replaceAll(',', ' ');
+
   final data = await _supabase
       .from('articles')
       .select()
-      .or('title.ilike.%$query%,summary.ilike.%$query%,source_name.ilike.%$query%')
+      .or(
+        'title.ilike.%$cleanQuery%,'
+        'summary.ilike.%$cleanQuery%,'
+        'source_name.ilike.%$cleanQuery%',
+      )
       .order('published_at', ascending: false)
       .limit(50); // lebih banyak dari feed utama
 

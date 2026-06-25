@@ -43,3 +43,36 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Android local config
+android/local.properties
+
+# Flutter generated files
+.flutter-plugins
+.packages
+
+# Windows Flutter generated files
+windows/flutter/ephemeral/
+
+# Supabase local files
+supabase/.branches/
+supabase/.temp/
+
+# Secret and key files
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+service-role*.txt
+service_role*.txt
+supabase-service-role*.txt
+
+# Local Git config workaround
+.gitconfig
+.supabase-home/

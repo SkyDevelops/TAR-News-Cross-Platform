@@ -87,54 +87,182 @@ class NewsImage extends StatelessWidget {
     this.fit = BoxFit.cover,
   });
 
+  static const Map<String, String> _imageHeaders = {
+    'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+  };
+
   @override
   Widget build(BuildContext context) {
+    final imageUrl = _normalizeUrl(url);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final placeholder = Container(
-      color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE),
-      child: const Center(
-        child: Icon(
-          Icons.image_outlined,
-          color: Colors.grey,
-          size: 32,
-        ),
-      ),
-    );
-
-    if (url == null || url!.isEmpty) {
-      return ClipRRect(
-        borderRadius: borderRadius ?? BorderRadius.zero,
-        child: SizedBox(
-          height: height,
-          width: width,
-          child: placeholder,
+    if (imageUrl == null) {
+      return _buildContainer(
+        child: _NewsImagePlaceholder(
+          isDark: isDark,
+          icon: Icons.image_outlined,
         ),
       );
     }
 
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dpr = MediaQuery.devicePixelRatioOf(context);
+
+        final displayWidth = _resolveDisplayWidth(context, constraints);
+        final displayHeight = _resolveDisplayHeight(displayWidth, constraints);
+
+        final memCacheWidth = (displayWidth * dpr)
+            .round()
+            .clamp(1, 1200)
+            .toInt();
+
+        final memCacheHeight = (displayHeight * dpr)
+            .round()
+            .clamp(1, 900)
+            .toInt();
+
+        return _buildContainer(
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
+            httpHeaders: _imageHeaders,
+            width: _widgetWidth,
+            height: _widgetHeight,
+            fit: fit,
+
+            // Pakai memory resize saja.
+            // Jangan pakai maxWidthDiskCache dan maxHeightDiskCache dulu.
+            memCacheWidth: memCacheWidth,
+            memCacheHeight: memCacheHeight,
+
+            fadeInDuration: Duration.zero,
+            fadeOutDuration: Duration.zero,
+
+            placeholder: (_, __) => _NewsImagePlaceholder(
+              isDark: isDark,
+              icon: Icons.image_outlined,
+            ),
+
+            errorWidget: (_, __, error) {
+              assert(() {
+                debugPrint('NewsImage gagal load: $imageUrl');
+                debugPrint('Error: $error');
+                return true;
+              }());
+
+              return _NewsImagePlaceholder(
+                isDark: isDark,
+                icon: Icons.broken_image_outlined,
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  static String? _normalizeUrl(String? value) {
+    final raw = value?.trim();
+
+    if (raw == null || raw.isEmpty) return null;
+
+    var cleanUrl = raw
+        .replaceAll('&amp;', '&')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'")
+        .trim();
+
+    if (cleanUrl.startsWith('//')) {
+      cleanUrl = 'https:$cleanUrl';
+    }
+
+    final uri = Uri.tryParse(cleanUrl);
+    if (uri == null) return null;
+
+    if (uri.scheme != 'http' && uri.scheme != 'https') {
+      return null;
+    }
+
+    return cleanUrl;
+  }
+
+  double? get _widgetHeight {
+    if (height == null) return null;
+    if (!height!.isFinite) return double.infinity;
+    return height;
+  }
+
+  double? get _widgetWidth {
+    if (width == null) return double.infinity;
+    if (!width!.isFinite) return double.infinity;
+    return width;
+  }
+
+  Widget _buildContainer({
+    required Widget child,
+  }) {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
-      child: CachedNetworkImage(
-        imageUrl: url!,
-        height: height,
-        width: width,
-        fit: fit,
-        placeholder: (_, __) => Shimmer.fromColors(
-          baseColor: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE),
-          highlightColor:
-              isDark ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5),
-          child: Container(
-            color: Colors.white,
-            height: height,
-            width: width,
-          ),
-        ),
-        errorWidget: (_, __, ___) => SizedBox(
-          height: height,
-          width: width,
-          child: placeholder,
-        ),
+      child: SizedBox(
+        width: _widgetWidth,
+        height: _widgetHeight,
+        child: child,
+      ),
+    );
+  }
+
+  double _resolveDisplayWidth(
+    BuildContext context,
+    BoxConstraints constraints,
+  ) {
+    if (width != null && width!.isFinite && width! > 0) {
+      return width!;
+    }
+
+    if (constraints.maxWidth.isFinite && constraints.maxWidth > 0) {
+      return constraints.maxWidth;
+    }
+
+    return MediaQuery.sizeOf(context).width;
+  }
+
+  double _resolveDisplayHeight(
+    double displayWidth,
+    BoxConstraints constraints,
+  ) {
+    if (height != null && height!.isFinite && height! > 0) {
+      return height!;
+    }
+
+    if (constraints.maxHeight.isFinite && constraints.maxHeight > 0) {
+      return constraints.maxHeight;
+    }
+
+    return displayWidth * 9 / 16;
+  }
+}
+
+class _NewsImagePlaceholder extends StatelessWidget {
+  final bool isDark;
+  final IconData icon;
+
+  const _NewsImagePlaceholder({
+    required this.isDark,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE),
+      alignment: Alignment.center,
+      child: Icon(
+        icon,
+        color: Colors.grey,
+        size: 30,
       ),
     );
   }
