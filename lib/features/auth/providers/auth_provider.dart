@@ -121,22 +121,39 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // âœ… TAMBAHAN: Google Sign-In via Supabase OAuth
   Future<void> loginWithGoogle() async {
-    state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
+    const mobileRedirectUrl = 'tarnews://login-callback/';
+    final webRedirectUrl = '${Uri.base.origin}/';
+
+    state = state.copyWith(
+      status: AuthStatus.loading,
+      errorMessage: null,
+    );
+
     try {
-      await _supabase.auth.signInWithOAuth(
+      final didLaunch = await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: kIsWeb ? Uri.base.origin : 'tarnews://login-callback',
+        redirectTo: kIsWeb ? webRedirectUrl : mobileRedirectUrl,
         authScreenLaunchMode: LaunchMode.platformDefault,
       );
-      // Supabase akan redirect browser ke Google lalu kembali ke app
-      // Status sukses akan ditangani oleh onAuthStateChange di app_router
+
+      if (!didLaunch) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: 'Halaman login Google tidak dapat dibuka.',
+        );
+        return;
+      }
+
       state = state.copyWith(status: AuthStatus.initial);
     } on AuthException catch (e) {
-      state = state.copyWith(status: AuthStatus.error, errorMessage: e.message);
-    } catch (e) {
       state = state.copyWith(
         status: AuthStatus.error,
-        errorMessage: 'Gagal login dengan Google',
+        errorMessage: e.message,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'Gagal login dengan Google.',
       );
     }
   }
