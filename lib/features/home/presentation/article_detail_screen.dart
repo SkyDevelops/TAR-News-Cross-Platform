@@ -138,7 +138,13 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
   void initState() {
     super.initState();
     _isBookmarked = widget.article.isBookmarked;
-    _fetchContent();
+    // Jika artikel sudah ada content dari DB cache, langsung tampilkan
+    if (widget.article.content != null &&
+        widget.article.content!.isNotEmpty) {
+      _content = widget.article.content;
+    } else {
+      _fetchContent();
+    }
   }
 
   Future<void> _fetchContent() async {
@@ -153,7 +159,10 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
     try {
       final res = await Supabase.instance.client.functions.invoke(
         'fetch-content',
-        body: {'url': url},
+        body: {
+          'url': url,
+          'article_id': widget.articleId, // untuk caching ke DB
+        },
       );
       final data = res.data as Map<String, dynamic>?;
       if (data != null && data['content'] != null) {
@@ -161,16 +170,43 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
         if (content.isNotEmpty) {
           setState(() => _content = content);
         } else {
-          setState(() => _contentError = 'Konten kosong dari sumber.');
+          setState(() => _contentError = _getActionableError(data));
         }
-      } else if (data != null && data['error'] != null) {
-        setState(() => _contentError = 'Gagal memuat: ${data['error']}');
+      } else if (data != null) {
+        setState(() => _contentError = _getActionableError(data));
+      } else {
+        setState(() => _contentError =
+            'Isi berita tidak tersedia. Buka sumber asli untuk membaca lengkap.');
       }
     } catch (e) {
       debugPrint('fetch-content error: $e');
-      setState(() => _contentError = 'Konten tidak dapat dimuat.');
+      setState(() => _contentError =
+          'Gagal menghubungi server. Periksa koneksi internet Anda.');
     } finally {
       if (mounted) setState(() => _isLoadingContent = false);
+    }
+  }
+
+  /// Mengubah error_code dari edge function menjadi pesan yang actionable.
+  String _getActionableError(Map<String, dynamic> data) {
+    final errorCode = data['error_code'] as String?;
+    final errorMsg = data['error'] as String?;
+    switch (errorCode) {
+      case 'blocked':
+        return 'Sumber berita memblokir akses otomatis. '
+            'Gunakan tombol "Buka Sumber Asli" di bawah.';
+      case 'timeout':
+        return 'Sumber berita terlalu lama merespons. '
+            'Coba lagi atau buka sumber asli.';
+      case 'no_selector_match':
+        return 'Konten tidak dapat diekstrak (kemungkinan halaman butuh JavaScript). '
+            'Buka sumber asli untuk membaca lengkap.';
+      case 'network_error':
+        return 'Tidak dapat menghubungi sumber berita. '
+            'Periksa koneksi atau buka sumber asli.';
+      default:
+        return errorMsg ??
+            'Isi berita tidak tersedia. Buka sumber asli untuk membaca lengkap.';
     }
   }
 

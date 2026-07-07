@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../home/providers/news_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import 'profile_desktop_layout.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -29,66 +30,53 @@ class ProfileScreen extends ConsumerWidget {
           child: CircularProgressIndicator(color: AppTheme.primary),
         ),
         error: (_, __) => const Center(child: Text('Gagal memuat profil')),
-        data: (profile) => Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 32, 20, 32),
+        data: (profile) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isDesktop = screenWidth >= 800;
+
+          // ── DESKTOP LAYOUT (>= 800px) ─────────────────────────────────
+          if (isDesktop) {
+            final avatarSection = SizedBox(
+              width: 220,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 16),
                   CircleAvatar(
-                    radius: 52,
+                    radius: 64,
                     backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
-                    backgroundImage: (profile?.avatarUrl != null &&
-                            profile!.avatarUrl!.isNotEmpty)
+                    backgroundImage: (profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty)
                         ? NetworkImage(profile.avatarUrl!) as ImageProvider
                         : null,
-                    child: (profile?.avatarUrl == null ||
-                            profile!.avatarUrl!.isEmpty)
-                        ? const Icon(
-                            Icons.person,
-                            size: 52,
-                            color: AppTheme.primary,
-                          )
+                    child: (profile?.avatarUrl == null || profile!.avatarUrl!.isEmpty)
+                        ? const Icon(Icons.person, size: 64, color: AppTheme.primary)
                         : null,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Text(
                     profile?.fullName ?? user.email ?? 'Pengguna',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     user.email ?? '',
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 14,
-                    ),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey[500], fontSize: 14),
                   ),
-                  if (profile?.username != null &&
-                      profile!.username!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                  if (profile?.username != null && profile!.username!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
                     Text(
                       '@${profile.username!}',
-                      style: TextStyle(
-                        color: AppTheme.primary.withValues(alpha: 0.8),
-                        fontSize: 13,
-                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppTheme.primary.withValues(alpha: 0.8), fontSize: 13),
                     ),
                   ],
                   if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     Text(
                       profile.bio!,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
                       textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
                   const SizedBox(height: 24),
@@ -101,56 +89,174 @@ class ProfileScreen extends ConsumerWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.primary,
                         side: const BorderSide(color: AppTheme.primary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  const Divider(),
-                  _ProfileMenuItem(
-                    icon: Icons.bookmark_outline,
-                    label: 'Bookmark Saya',
-                    onTap: () => context.go('/home/bookmark'),
-                  ),
-                  _ProfileMenuItem(
-                    icon: Icons.settings_outlined,
-                    label: 'Pengaturan',
-                    onTap: () => context.go('/home/settings'),
-                  ),
-                  _ProfileMenuItem(
-                    icon: Icons.info_outline,
-                    label: 'Tentang Kami',
-                    onTap: () => context.go('/home/about'),
-                  ),
-                  const Divider(),
-                  _ProfileMenuItem(
-                    icon: Icons.logout,
-                    label: 'Logout',
-                    color: Colors.red,
-                    onTap: () async {
-                      await ref.read(authProvider.notifier).logout();
-                      if (context.mounted) {
-                        context.go(
-                            '/login?redirect=${Uri.encodeComponent('/home/profile')}');
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    '(c) 2025 TAR News. All Rights Reserved.',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 12,
                     ),
                   ),
                 ],
               ),
+            );
+
+            final menuItems = [
+              DesktopMenuItemData(
+                icon: Icons.bookmark_outline,
+                label: 'Bookmark Saya',
+                onTap: () => context.go('/home/bookmark'),
+              ),
+              DesktopMenuItemData(
+                icon: Icons.settings_outlined,
+                label: 'Pengaturan',
+                onTap: () => context.go('/home/settings'),
+              ),
+              DesktopMenuItemData(
+                icon: Icons.info_outline,
+                label: 'Tentang Kami',
+                onTap: () => context.go('/home/about'),
+              ),
+              DesktopMenuItemData(
+                icon: Icons.logout,
+                label: 'Logout',
+                color: Colors.red,
+                onTap: () async {
+                  await ref.read(authProvider.notifier).logout();
+                  if (context.mounted) {
+                    context.go('/login?redirect=${Uri.encodeComponent('/home/profile')}');
+                  }
+                },
+              ),
+            ];
+
+            return ProfileDesktopLayout(
+              avatarSection: avatarSection,
+              menuItems: menuItems,
+            );
+          }
+
+          // ── MOBILE LAYOUT (< 800px) — TIDAK DIUBAH ───────────────────
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 32, 20, 32),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    CircleAvatar(
+                      radius: 52,
+                      backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
+                      backgroundImage: (profile?.avatarUrl != null &&
+                              profile!.avatarUrl!.isNotEmpty)
+                          ? NetworkImage(profile.avatarUrl!) as ImageProvider
+                          : null,
+                      child: (profile?.avatarUrl == null ||
+                              profile!.avatarUrl!.isEmpty)
+                          ? const Icon(
+                              Icons.person,
+                              size: 52,
+                              color: AppTheme.primary,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      profile?.fullName ?? user.email ?? 'Pengguna',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user.email ?? '',
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (profile?.username != null &&
+                        profile!.username!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '@${profile.username!}',
+                        style: TextStyle(
+                          color: AppTheme.primary.withValues(alpha: 0.8),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                    if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        profile.bio!,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showEditSheet(context, ref, profile),
+                        icon: const Icon(Icons.edit_outlined, size: 18),
+                        label: const Text('Edit Profil'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.primary,
+                          side: const BorderSide(color: AppTheme.primary),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    const Divider(),
+                    _ProfileMenuItem(
+                      icon: Icons.bookmark_outline,
+                      label: 'Bookmark Saya',
+                      onTap: () => context.go('/home/bookmark'),
+                    ),
+                    _ProfileMenuItem(
+                      icon: Icons.settings_outlined,
+                      label: 'Pengaturan',
+                      onTap: () => context.go('/home/settings'),
+                    ),
+                    _ProfileMenuItem(
+                      icon: Icons.info_outline,
+                      label: 'Tentang Kami',
+                      onTap: () => context.go('/home/about'),
+                    ),
+                    const Divider(),
+                    _ProfileMenuItem(
+                      icon: Icons.logout,
+                      label: 'Logout',
+                      color: Colors.red,
+                      onTap: () async {
+                        await ref.read(authProvider.notifier).logout();
+                        if (context.mounted) {
+                          context.go(
+                              '/login?redirect=${Uri.encodeComponent('/home/profile')}');
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      '(c) 2025 TAR News. All Rights Reserved.',
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

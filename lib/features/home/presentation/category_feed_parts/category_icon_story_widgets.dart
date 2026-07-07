@@ -12,7 +12,16 @@ class _AutomotiveHeader extends StatelessWidget {
     return _CategoryIconHeader(
       info: info,
       icon: Icons.directions_car_filled_rounded,
-      chips: const ['Mobil', 'Motor', 'EV', 'Modifikasi'],
+      extraContent: const Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _TechPill(text: 'Mobil'),
+          _TechPill(text: 'Motor'),
+          _TechPill(text: 'EV'),
+          _TechPill(text: 'Modifikasi'),
+        ],
+      ),
     );
   }
 }
@@ -29,7 +38,16 @@ class _TravelHeader extends StatelessWidget {
     return _CategoryIconHeader(
       info: info,
       icon: Icons.flight_takeoff_rounded,
-      chips: const ['Destinasi', 'Hotel', 'Kuliner', 'Tips'],
+      extraContent: const Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _TechPill(text: 'Destinasi'),
+          _TechPill(text: 'Hotel'),
+          _TechPill(text: 'Kuliner'),
+          _TechPill(text: 'Tips'),
+        ],
+      ),
     );
   }
 }
@@ -46,79 +64,14 @@ class _LifestyleHeader extends StatelessWidget {
     return _CategoryIconHeader(
       info: info,
       icon: Icons.spa_rounded,
-      chips: const ['Wellness', 'Style', 'Hiburan', 'Inspirasi'],
-    );
-  }
-}
-
-class _CategoryIconHeader extends StatelessWidget {
-  final _CategoryInfo info;
-  final IconData icon;
-  final List<String> chips;
-
-  const _CategoryIconHeader({
-    required this.info,
-    required this.icon,
-    required this.chips,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 24),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1C1C1C) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE7E7E7),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      extraContent: const Wrap(
+        spacing: 8,
+        runSpacing: 8,
         children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Icon(icon, color: AppTheme.primary, size: 32),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  info.title,
-                  style: TextStyle(
-                    color: isDark ? Colors.white : const Color(0xFF202020),
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  info.subtitle,
-                  style: TextStyle(
-                    color: isDark ? Colors.white60 : Colors.black54,
-                    fontSize: 14,
-                    height: 1.45,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: chips.map((chip) => _TechPill(text: chip)).toList(),
-                ),
-              ],
-            ),
-          ),
+          _TechPill(text: 'Wellness'),
+          _TechPill(text: 'Style'),
+          _TechPill(text: 'Hiburan'),
+          _TechPill(text: 'Inspirasi'),
         ],
       ),
     );
@@ -494,7 +447,6 @@ class _AutomotiveMetricStrip extends StatelessWidget {
       _CategoryTopic(label: 'EV', icon: Icons.electric_car_rounded),
       _CategoryTopic(label: 'Industri', icon: Icons.precision_manufacturing),
     ];
-
     return const _CategoryTopicStrip(topics: topics);
   }
 }
@@ -510,7 +462,6 @@ class _TravelRouteStrip extends StatelessWidget {
       _CategoryTopic(label: 'Kuliner', icon: Icons.restaurant_rounded),
       _CategoryTopic(label: 'Panduan', icon: Icons.map_rounded),
     ];
-
     return const _CategoryTopicStrip(topics: topics);
   }
 }
@@ -526,7 +477,6 @@ class _LifestyleMoodStrip extends StatelessWidget {
       _CategoryTopic(label: 'Hiburan', icon: Icons.movie_rounded),
       _CategoryTopic(label: 'Rumah', icon: Icons.weekend_rounded),
     ];
-
     return const _CategoryTopicStrip(topics: topics);
   }
 }
