@@ -42,8 +42,7 @@ class _KanalScreenState extends ConsumerState<KanalScreen> {
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 2),
               child: Text('Kategori',
-                  style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
             ),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -66,8 +65,8 @@ class _KanalScreenState extends ConsumerState<KanalScreen> {
                             final catName = cat['name'] as String;
                             return GestureDetector(
                               behavior: HitTestBehavior.opaque,
-                              onTap: () => setState(
-                                  () => _selectedCategory = catName),
+                              onTap: () =>
+                                  setState(() => _selectedCategory = catName),
                               child: Container(
                                 width: 80,
                                 height: 72,
@@ -84,12 +83,10 @@ class _KanalScreenState extends ConsumerState<KanalScreen> {
                                   ),
                                 ),
                                 child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(cat['icon'] as String,
-                                        style: const TextStyle(
-                                            fontSize: 22)),
+                                        style: const TextStyle(fontSize: 22)),
                                     const SizedBox(height: 5),
                                     Text(
                                       catName,
@@ -113,8 +110,7 @@ class _KanalScreenState extends ConsumerState<KanalScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'Tap kategori untuk melihat berita',
-                      style: TextStyle(
-                          color: Colors.grey[400], fontSize: 13),
+                      style: TextStyle(color: Colors.grey[400], fontSize: 13),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -146,18 +142,16 @@ class _KanalScreenState extends ConsumerState<KanalScreen> {
                         const SizedBox(height: 8),
                         Text(
                           '$e',
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 11, color: Colors.grey),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 12),
                         TextButton(
                           onPressed: () => ref.invalidate(
-                              articlesByCategoryProvider(
-                                  _selectedCategory!)),
+                              articlesByCategoryProvider(_selectedCategory!)),
                           child: const Text('Coba lagi',
-                              style:
-                                  TextStyle(color: AppTheme.primary)),
+                              style: TextStyle(color: AppTheme.primary)),
                         ),
                       ],
                     ),
@@ -182,31 +176,25 @@ class _KanalScreenState extends ConsumerState<KanalScreen> {
                   }
                   return RefreshIndicator(
                     onRefresh: () => ref.refresh(
-                        articlesByCategoryProvider(_selectedCategory!)
-                            .future),
+                        articlesByCategoryProvider(_selectedCategory!).future),
                     color: AppTheme.primary,
                     child: ListView(
                       children: [
                         Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                           child: Text(
                             _selectedCategory!,
                             style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700),
+                                fontSize: 16, fontWeight: FontWeight.w700),
                           ),
                         ),
                         ...articles.map((a) => ArticleCard(
                               article: a,
-                              onTap: () =>
-                                  context.go('/home/article/${a.id}'),
+                              onTap: () => context.go('/home/article/${a.id}'),
                               onBookmark: () async {
-                                await toggleBookmark(
-                                    a.id, a.isBookmarked);
-                                ref.invalidate(
-                                    articlesByCategoryProvider(
-                                        _selectedCategory!));
+                                await toggleBookmark(a.id, a.isBookmarked);
+                                ref.invalidate(articlesByCategoryProvider(
+                                    _selectedCategory!));
                                 ref.invalidate(bookmarksProvider);
                               },
                             )),
@@ -224,7 +212,7 @@ class _KanalScreenState extends ConsumerState<KanalScreen> {
   }
 }
 
-// ── Widget chip navbar horizontal ────────────────────────────────────────────
+// --- Widget chip navbar horizontal ---
 class _CategoryChipBar extends StatelessWidget {
   final String selected;
   final ValueChanged<String> onSelect;
@@ -253,14 +241,12 @@ class _CategoryChipBar extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xFF2A2A2A)
-                    : const Color(0xFFEEEEEE),
+                color:
+                    isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF3A3A3A)
-                      : Colors.grey.shade300,
+                  color:
+                      isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300,
                   width: 0.5,
                 ),
               ),

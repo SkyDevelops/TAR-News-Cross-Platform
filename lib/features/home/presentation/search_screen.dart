@@ -126,8 +126,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       height: 400,
                       child: ArticleCard(
                         article: article,
-                        onTap: () =>
-                            context.go('/home/article/${article.id}'),
+                        onTap: () => context.go('/home/article/${article.id}'),
                         onBookmark: () => _toggleBookmark(article),
                       ),
                     ),

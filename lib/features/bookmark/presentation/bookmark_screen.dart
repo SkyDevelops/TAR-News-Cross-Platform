@@ -73,7 +73,8 @@ class BookmarkScreen extends ConsumerWidget {
                                 style: TextStyle(color: Colors.grey[500])),
                             const SizedBox(height: 8),
                             Text(
-                              'Tap ikon bookmark pada berita\nuntuk menyimpannya',
+                              'Tap ikon bookmark pada berita\n'
+                              'untuk menyimpannya',
                               style: TextStyle(
                                   color: Colors.grey[400], fontSize: 13),
                               textAlign: TextAlign.center,

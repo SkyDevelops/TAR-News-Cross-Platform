@@ -81,8 +81,7 @@ class ArticleDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Text('Artikel tidak ditemukan\nID: $articleId',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.grey, fontSize: 12)),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   const SizedBox(height: 12),
                   TextButton(
                       onPressed: () => context.go('/home'),
@@ -116,7 +115,7 @@ class ArticleDetailScreen extends ConsumerWidget {
   }
 }
 
-// ── Flutter Web: fetch content via Supabase Edge Function ────────────────────
+// --- Flutter Web: fetch content via Edge Function ---
 class _ArticleWebFallback extends StatefulWidget {
   final Article article;
   final WidgetRef ref;
@@ -139,8 +138,7 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
     super.initState();
     _isBookmarked = widget.article.isBookmarked;
     // Jika artikel sudah ada content dari DB cache, langsung tampilkan
-    if (widget.article.content != null &&
-        widget.article.content!.isNotEmpty) {
+    if (widget.article.content != null && widget.article.content!.isNotEmpty) {
       _content = widget.article.content;
     } else {
       _fetchContent();
@@ -176,7 +174,8 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
         setState(() => _contentError = _getActionableError(data));
       } else {
         setState(() => _contentError =
-            'Isi berita tidak tersedia. Buka sumber asli untuk membaca lengkap.');
+            'Isi berita tidak tersedia. '
+            'Buka sumber asli untuk membaca lengkap.');
       }
     } catch (e) {
       debugPrint('fetch-content error: $e');
@@ -199,14 +198,16 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
         return 'Sumber berita terlalu lama merespons. '
             'Coba lagi atau buka sumber asli.';
       case 'no_selector_match':
-        return 'Konten tidak dapat diekstrak (kemungkinan halaman butuh JavaScript). '
+        return 'Konten tidak dapat diekstrak '
+            '(kemungkinan halaman butuh JavaScript). '
             'Buka sumber asli untuk membaca lengkap.';
       case 'network_error':
         return 'Tidak dapat menghubungi sumber berita. '
             'Periksa koneksi atau buka sumber asli.';
       default:
         return errorMsg ??
-            'Isi berita tidak tersedia. Buka sumber asli untuk membaca lengkap.';
+            'Isi berita tidak tersedia. '
+            'Buka sumber asli untuk membaca lengkap.';
     }
   }
 
@@ -238,14 +239,14 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
                   ),
                 );
                 context.go(
-                  '/login?redirect=${Uri.encodeComponent('/home/article/${article.id}')}',
+                  '/login?redirect='
+                  '${Uri.encodeComponent('/home/article/${article.id}')}',
                 );
                 return;
               }
               setState(() => _isBookmarked = !_isBookmarked);
               article.isBookmarked = _isBookmarked;
-              widget.ref
-                  .invalidate(articleDetailProvider(widget.articleId));
+              widget.ref.invalidate(articleDetailProvider(widget.articleId));
               widget.ref.invalidate(bookmarksProvider);
             },
           ),
@@ -273,9 +274,7 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
             // ── Judul ──
             Text(article.title,
                 style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    height: 1.35)),
+                    fontSize: 22, fontWeight: FontWeight.w800, height: 1.35)),
             const SizedBox(height: 10),
 
             // ── Meta info ──
@@ -283,31 +282,26 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
               const Icon(Icons.access_time, size: 13, color: Colors.grey),
               const SizedBox(width: 4),
               Text(article.timeAgo,
-                  style:
-                      const TextStyle(color: Colors.grey, fontSize: 12)),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12)),
               if (article.sourceName != null) ...[
                 const SizedBox(width: 12),
-                const Icon(Icons.source_outlined,
-                    size: 13, color: Colors.grey),
+                const Icon(Icons.source_outlined, size: 13, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(article.sourceName!,
-                    style: const TextStyle(
-                        color: Colors.grey, fontSize: 12)),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ]),
             const Divider(height: 28),
 
             // ── Summary (ringkasan) ──
-            if (article.summary != null &&
-                article.summary!.isNotEmpty) ...[
+            if (article.summary != null && article.summary!.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: AppTheme.primary.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(8),
                   border: const Border(
-                      left: BorderSide(
-                          color: AppTheme.primary, width: 3)),
+                      left: BorderSide(color: AppTheme.primary, width: 3)),
                 ),
                 child: Text(article.summary!,
                     style: const TextStyle(
@@ -328,20 +322,18 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
                       CircularProgressIndicator(color: AppTheme.primary),
                       SizedBox(height: 12),
                       Text('Memuat isi berita...',
-                          style: TextStyle(
-                              color: Colors.grey, fontSize: 13)),
+                          style: TextStyle(color: Colors.grey, fontSize: 13)),
                     ],
                   ),
                 ),
               )
             else if (_content != null && _content!.isNotEmpty)
-              Text(_content!,
-                  style:
-                      const TextStyle(fontSize: 15, height: 1.8))
+              Text(_content!, style: const TextStyle(fontSize: 15, height: 1.8))
             else ...[
               Text(
                 _contentError ??
-                    'Isi berita tidak tersedia. Buka sumber asli untuk membaca lengkap.',
+                    'Isi berita tidak tersedia. '
+                    'Buka sumber asli untuk membaca lengkap.',
                 style: const TextStyle(
                     color: Colors.grey, fontSize: 14, height: 1.6),
               ),
@@ -353,12 +345,10 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
 
             // ── Sumber berita ──
             const Text('Sumber Berita',
-                style: TextStyle(
-                    fontWeight: FontWeight.w700, fontSize: 14)),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
             const SizedBox(height: 4),
             Text(article.sourceName ?? '',
-                style: const TextStyle(
-                    color: Colors.grey, fontSize: 13)),
+                style: const TextStyle(color: Colors.grey, fontSize: 13)),
 
             // ── Tombol buka sumber asli ──
             if (article.sourceUrl != null) ...[
@@ -370,8 +360,7 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
                   label: const Text('Buka Sumber Asli'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.primary,
-                    side:
-                        const BorderSide(color: AppTheme.primary),
+                    side: const BorderSide(color: AppTheme.primary),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -394,7 +383,7 @@ class _ArticleWebFallbackState extends State<_ArticleWebFallback> {
   }
 }
 
-// ── Mobile WebView ────────────────────────────────────────────────────────────
+// --- Mobile WebView ---
 class _ArticleWebView extends StatefulWidget {
   final Article article;
   final WidgetRef ref;
@@ -444,8 +433,8 @@ class _ArticleWebViewState extends State<_ArticleWebView> {
               color: _isBookmarked ? AppTheme.primary : null,
             ),
             onPressed: () async {
-              final saved = await toggleBookmark(
-                  widget.article.id, _isBookmarked);
+              final saved =
+                  await toggleBookmark(widget.article.id, _isBookmarked);
               if (!saved) {
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -454,14 +443,15 @@ class _ArticleWebViewState extends State<_ArticleWebView> {
                   ),
                 );
                 context.go(
-                  '/login?redirect=${Uri.encodeComponent('/home/article/${widget.article.id}')}',
+                  '/login?redirect='
+                  '${Uri.encodeComponent('/home/article/'
+                      '${widget.article.id}')}',
                 );
                 return;
               }
               setState(() => _isBookmarked = !_isBookmarked);
               widget.article.isBookmarked = _isBookmarked;
-              widget.ref
-                  .invalidate(articleDetailProvider(widget.articleId));
+              widget.ref.invalidate(articleDetailProvider(widget.articleId));
               widget.ref.invalidate(bookmarksProvider);
             },
           ),
@@ -483,7 +473,7 @@ class _ArticleWebViewState extends State<_ArticleWebView> {
   }
 }
 
-// ── Fallback Text View (no URL) ───────────────────────────────────────────────
+// --- Fallback Text View (no URL) ---
 class _ArticleTextView extends StatefulWidget {
   final Article article;
   final WidgetRef ref;
@@ -515,8 +505,7 @@ class _ArticleTextViewState extends State<_ArticleTextView> {
           leading: IconButton(
             icon: const CircleAvatar(
               backgroundColor: Colors.black54,
-              child: Icon(Icons.arrow_back,
-                  color: Colors.white, size: 18),
+              child: Icon(Icons.arrow_back, color: Colors.white, size: 18),
             ),
             onPressed: () => context.go('/home'),
           ),
@@ -525,12 +514,8 @@ class _ArticleTextViewState extends State<_ArticleTextView> {
               icon: CircleAvatar(
                 backgroundColor: Colors.black54,
                 child: Icon(
-                  _isBookmarked
-                      ? Icons.bookmark
-                      : Icons.bookmark_outline,
-                  color: _isBookmarked
-                      ? AppTheme.primary
-                      : Colors.white,
+                  _isBookmarked ? Icons.bookmark : Icons.bookmark_outline,
+                  color: _isBookmarked ? AppTheme.primary : Colors.white,
                   size: 18,
                 ),
               ),
@@ -544,14 +529,14 @@ class _ArticleTextViewState extends State<_ArticleTextView> {
                     ),
                   );
                   context.go(
-                    '/login?redirect=${Uri.encodeComponent('/home/article/${article.id}')}',
+                    '/login?redirect='
+                    '${Uri.encodeComponent('/home/article/${article.id}')}',
                   );
                   return;
                 }
                 setState(() => _isBookmarked = !_isBookmarked);
                 article.isBookmarked = _isBookmarked;
-                widget.ref
-                    .invalidate(articleDetailProvider(widget.articleId));
+                widget.ref.invalidate(articleDetailProvider(widget.articleId));
                 widget.ref.invalidate(bookmarksProvider);
               },
             ),
@@ -595,34 +580,29 @@ class _ArticleTextViewState extends State<_ArticleTextView> {
                         height: 1.35)),
                 const SizedBox(height: 12),
                 Row(children: [
-                  const Icon(Icons.access_time,
-                      size: 14, color: Colors.grey),
+                  const Icon(Icons.access_time, size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
                   Text(article.timeAgo,
-                      style: const TextStyle(
-                          color: Colors.grey, fontSize: 12)),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   if (article.sourceName != null) ...[
                     const SizedBox(width: 12),
                     const Icon(Icons.source_outlined,
                         size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(article.sourceName!,
-                        style: const TextStyle(
-                            color: Colors.grey, fontSize: 12)),
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ]),
                 const Divider(height: 28),
-                if (article.summary != null &&
-                    article.summary!.isNotEmpty) ...[
+                if (article.summary != null && article.summary!.isNotEmpty) ...[
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color:
-                          AppTheme.primary.withValues(alpha: 0.06),
+                      color: AppTheme.primary.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(8),
                       border: const Border(
-                          left: BorderSide(
-                              color: AppTheme.primary, width: 3)),
+                          left: BorderSide(color: AppTheme.primary, width: 3)),
                     ),
                     child: Text(article.summary!,
                         style: const TextStyle(
@@ -632,17 +612,12 @@ class _ArticleTextViewState extends State<_ArticleTextView> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (article.content != null &&
-                    article.content!.isNotEmpty)
+                if (article.content != null && article.content!.isNotEmpty)
                   Text(article.content!,
-                      style: const TextStyle(
-                          fontSize: 15, height: 1.8))
+                      style: const TextStyle(fontSize: 15, height: 1.8))
                 else
-                  Text(
-                      article.summary ??
-                          'Konten artikel tidak tersedia.',
-                      style: const TextStyle(
-                          fontSize: 15, height: 1.8)),
+                  Text(article.summary ?? 'Konten artikel tidak tersedia.',
+                      style: const TextStyle(fontSize: 15, height: 1.8)),
                 const SizedBox(height: 40),
               ],
             ),

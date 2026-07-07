@@ -7,7 +7,7 @@ import '../../../core/models/models.dart';
 
 final _supabase = Supabase.instance.client;
 
-// ── Helper: tandai artikel yang sudah di-bookmark ────────────────────────────
+// --- Helper: tandai artikel yang sudah di-bookmark ---
 Future<List<Article>> _withBookmarkStatus(List<Article> articles) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return articles;
@@ -26,7 +26,7 @@ Future<List<Article>> _withBookmarkStatus(List<Article> articles) async {
   }).toList();
 }
 
-// ── All articles — auto-refresh setiap 30 detik ──────────────────────────────
+// --- All articles — auto-refresh 30 detik ---
 final articlesProvider = FutureProvider<List<Article>>((ref) async {
   // Setelah 30 detik, provider otomatis fetch ulang.
   // Timer dibatalkan saat provider dispose agar tidak ada callback tertinggal.
@@ -45,7 +45,7 @@ final articlesProvider = FutureProvider<List<Article>>((ref) async {
   return _withBookmarkStatus(articles);
 });
 
-// ── Articles by category ──────────────────────────────────────────────────────
+// --- Articles by category ---
 final articlesByCategoryProvider =
     FutureProvider.family<List<Article>, String>((ref, category) async {
   final data = await _supabase
@@ -61,7 +61,7 @@ final articlesByCategoryProvider =
   return _withBookmarkStatus(articles);
 });
 
-// ── Search ────────────────────────────────────────────────────────────────────
+// --- Search ---
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
 final searchResultsProvider = FutureProvider<List<Article>>((ref) async {
@@ -87,7 +87,7 @@ final searchResultsProvider = FutureProvider<List<Article>>((ref) async {
   return _withBookmarkStatus(articles);
 });
 
-// ── Bookmarks ─────────────────────────────────────────────────────────────────
+// --- Bookmarks ---
 final bookmarksProvider = FutureProvider<List<Article>>((ref) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return [];
@@ -119,7 +119,7 @@ final bookmarksProvider = FutureProvider<List<Article>>((ref) async {
       .toList();
 });
 
-// ── Toggle bookmark ───────────────────────────────────────────────────────────
+// --- Toggle bookmark ---
 Future<bool> toggleBookmark(
   String articleId,
   bool isCurrentlyBookmarked,
@@ -143,16 +143,13 @@ Future<bool> toggleBookmark(
   return true;
 }
 
-// ── Profile ───────────────────────────────────────────────────────────────────
+// --- Profile ---
 final profileProvider = FutureProvider<UserProfile?>((ref) async {
   final user = _supabase.auth.currentUser;
   if (user == null) return null;
 
-  final data = await _supabase
-      .from('profiles')
-      .select()
-      .eq('id', user.id)
-      .maybeSingle();
+  final data =
+      await _supabase.from('profiles').select().eq('id', user.id).maybeSingle();
 
   if (data == null) return null;
 
@@ -169,7 +166,7 @@ Future<void> updateProfile(Map<String, dynamic> data) async {
   });
 }
 
-// ── Categories ────────────────────────────────────────────────────────────────
+// --- Categories ---
 const List<Map<String, dynamic>> kCategories = [
   {'name': 'Nasional', 'icon': '🇮🇩'},
   {'name': 'Internasional', 'icon': '🌍'},

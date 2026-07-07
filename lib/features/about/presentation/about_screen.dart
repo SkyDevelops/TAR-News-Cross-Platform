@@ -13,7 +13,8 @@ class AboutScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/home/profile'),
         ),
-        title: const Text('Tentang Kami', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        title: const Text('Tentang Kami',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -29,7 +30,10 @@ class AboutScreen extends StatelessWidget {
                   SizedBox(height: 16),
                   Text('TAR NEWS',
                       style: TextStyle(
-                          color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: 3)),
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 3)),
                   SizedBox(height: 8),
                   Text('Berita Terpercaya untuk Semua',
                       style: TextStyle(color: Colors.white70, fontSize: 14)),
@@ -46,43 +50,65 @@ class AboutScreen extends StatelessWidget {
                   const _Section(
                     title: 'TENTANG KAMI',
                     content:
-                        'TAR News adalah platform berita digital yang menyajikan informasi terkini dan terpercaya dari berbagai penjuru dunia. Kami berkomitmen untuk memberikan berita yang akurat, berimbang, dan mudah dipahami oleh seluruh lapisan masyarakat.',
+                        'TAR News adalah platform berita digital yang '
+                        'menyajikan informasi terkini dan terpercaya dari '
+                        'berbagai penjuru dunia. Kami berkomitmen untuk '
+                        'memberikan berita yang akurat, berimbang, dan mudah '
+                        'dipahami oleh seluruh lapisan masyarakat.',
                   ),
                   const _Section(
                     title: 'REDAKSI',
                     content:
-                        'Tim redaksi TAR News terdiri dari jurnalis berpengalaman dan profesional di bidangnya. Setiap berita melalui proses verifikasi yang ketat sebelum dipublikasikan untuk memastikan keakuratan informasi.',
+                        'Tim redaksi TAR News terdiri dari jurnalis '
+                        'berpengalaman dan profesional di bidangnya. Setiap '
+                        'berita melalui proses verifikasi yang ketat sebelum '
+                        'dipublikasikan untuk memastikan keakuratan informasi.',
                   ),
                   const _Section(
                     title: 'MISI KAMI',
                     content:
-                        'Menyediakan akses informasi yang mudah, cepat, dan terpercaya bagi seluruh masyarakat Indonesia dan dunia, serta menjadi jembatan informasi antara berbagai lapisan masyarakat.',
+                        'Menyediakan akses informasi yang mudah, cepat, '
+                        'dan terpercaya bagi seluruh masyarakat Indonesia dan '
+                        'dunia, serta menjadi jembatan informasi antara '
+                        'berbagai lapisan masyarakat.',
                   ),
                   const Divider(height: 32),
                   _MenuItem(
                     title: 'Disclaimer',
                     onTap: () => _showDialog(context, 'Disclaimer',
-                        'Konten berita yang ditampilkan di TAR News bersumber dari berbagai media terpercaya. Kami tidak bertanggung jawab atas kerugian yang timbul akibat penggunaan informasi dari platform ini.'),
+                        'Konten berita yang ditampilkan di TAR News bersumber '
+                        'dari berbagai media terpercaya. Kami tidak '
+                        'bertanggung jawab atas kerugian yang timbul akibat '
+                        'penggunaan informasi dari platform ini.'),
                   ),
                   _MenuItem(
                     title: 'Term of Services',
                     onTap: () => _showDialog(context, 'Term of Services',
-                        'Dengan menggunakan layanan TAR News, Anda menyetujui syarat dan ketentuan yang berlaku. Pengguna dilarang menyebarkan konten yang melanggar hukum melalui platform ini.'),
+                        'Dengan menggunakan layanan TAR News, Anda menyetujui '
+                        'syarat dan ketentuan yang berlaku. Pengguna dilarang '
+                        'menyebarkan konten yang melanggar hukum melalui '
+                        'platform ini.'),
                   ),
                   _MenuItem(
                     title: 'Privacy Policy',
                     onTap: () => _showDialog(context, 'Privacy Policy',
-                        'TAR News berkomitmen untuk melindungi privasi pengguna. Data pribadi yang dikumpulkan hanya digunakan untuk meningkatkan layanan dan tidak akan dijual kepada pihak ketiga.'),
+                        'TAR News berkomitmen untuk melindungi privasi '
+                        'pengguna. Data pribadi yang dikumpulkan hanya '
+                        'digunakan untuk meningkatkan layanan dan tidak akan '
+                        'dijual kepada pihak ketiga.'),
                   ),
                   _MenuItem(
                     title: 'Kontak Kami',
                     onTap: () => _showDialog(context, 'Kontak Kami',
-                        'Email: redaksi@tarnews.id\nTelepon: +62 21 1234 5678\nAlamat: Jl. Berita No. 1, Jakarta Pusat, Indonesia'),
+                        'Email: redaksi@tarnews.id\n'
+                        'Telepon: +62 21 1234 5678\n'
+                        'Alamat: Jl. Berita No. 1, Jakarta Pusat, Indonesia'),
                   ),
                   const SizedBox(height: 32),
                   Center(
                     child: Text('© 2025 TAR News. All Rights Reserved.',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+                        style:
+                            TextStyle(color: Colors.grey[400], fontSize: 12)),
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -103,7 +129,8 @@ class AboutScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Tutup', style: TextStyle(color: AppTheme.primary)),
+            child:
+                const Text('Tutup', style: TextStyle(color: AppTheme.primary)),
           ),
         ],
       ),
@@ -125,7 +152,10 @@ class _Section extends StatelessWidget {
         children: [
           Text(title,
               style: const TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w800, color: AppTheme.primary, letterSpacing: 1)),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primary,
+                  letterSpacing: 1)),
           const SizedBox(height: 8),
           Text(content, style: const TextStyle(fontSize: 14, height: 1.7)),
         ],

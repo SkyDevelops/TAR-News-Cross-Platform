@@ -1,12 +1,10 @@
 part of '../category_feed_screen.dart';
 
-// ════════════════════════════════════════════════════════════════════════════
-// TECHNOLOGY CATEGORY WIDGETS
+// --- TECHNOLOGY CATEGORY WIDGETS ---
 // Thin entry-point: config teknologi-specific + komponen unik.
 // Widget struktural sudah dipindah ke shared_category_widgets.dart
-// ════════════════════════════════════════════════════════════════════════════
 
-// ── Technology header (punya fitur unik: tech pills di bawah subtitle) ────
+// --- Technology header ---
 class _TechnologyHeader extends StatelessWidget {
   final _CategoryInfo info;
   const _TechnologyHeader({required this.info});
@@ -28,7 +26,7 @@ class _TechnologyHeader extends StatelessWidget {
       );
 }
 
-// ── Tech pills (unik untuk Technology header) ─────────────────────────────
+// --- Tech pills ---
 class _TechPill extends StatelessWidget {
   final String text;
   const _TechPill({required this.text});
@@ -39,7 +37,9 @@ class _TechPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF3F3F3),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : const Color(0xFFF3F3F3),
         borderRadius: BorderRadius.circular(99),
         border: Border.all(
           color: isDark ? Colors.white12 : const Color(0xFFE3E3E3),
@@ -57,13 +57,17 @@ class _TechPill extends StatelessWidget {
   }
 }
 
-// ── Technology hero card (delegasi ke _CategoryHeroCard) ──────────────────
+// --- Technology hero card ---
 class _TechnologyHeroCard extends StatelessWidget {
   final Article article;
   final double? height;
   final VoidCallback onTap;
   final VoidCallback onBookmark;
-  const _TechnologyHeroCard({required this.article, required this.onTap, required this.onBookmark, this.height});
+  const _TechnologyHeroCard(
+      {required this.article,
+      required this.onTap,
+      required this.onBookmark,
+      this.height});
 
   @override
   Widget build(BuildContext context) => _CategoryHeroCard(
@@ -76,7 +80,7 @@ class _TechnologyHeroCard extends StatelessWidget {
       );
 }
 
-// ── Technology radar panel (unik: side panel dengan nomor urut + chip warna) ─
+// --- Technology radar panel ---
 class _TechnologyRadarPanel extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
@@ -100,12 +104,14 @@ class _TechnologyRadarPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.radar_rounded, color: AppTheme.primary, size: 22),
+              const Icon(Icons.radar_rounded,
+                  color: AppTheme.primary, size: 22),
               const SizedBox(width: 8),
               Text('Sinyal Terbaru',
                   style: TextStyle(
                     color: isDark ? Colors.white : const Color(0xFF202020),
-                    fontSize: 20, fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
                   )),
             ],
           ),
@@ -132,7 +138,8 @@ class _TechnologyRadarTile extends StatelessWidget {
   final Article article;
   final int index;
   final VoidCallback onTap;
-  const _TechnologyRadarTile({required this.article, required this.index, required this.onTap});
+  const _TechnologyRadarTile(
+      {required this.article, required this.index, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +151,8 @@ class _TechnologyRadarTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 34, height: 34,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               color: AppTheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
@@ -153,7 +161,8 @@ class _TechnologyRadarTile extends StatelessWidget {
               child: Text('$index',
                   style: const TextStyle(
                     color: AppTheme.primary,
-                    fontSize: 14, fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
                   )),
             ),
           ),
@@ -167,7 +176,9 @@ class _TechnologyRadarTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: isDark ? Colors.white : const Color(0xFF202020),
-                      fontSize: 14, height: 1.32, fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                      height: 1.32,
+                      fontWeight: FontWeight.w800,
                     )),
                 const SizedBox(height: 5),
                 Text(article.timeAgo,
@@ -184,7 +195,7 @@ class _TechnologyRadarTile extends StatelessWidget {
   }
 }
 
-// ── Tech topic strip (unik untuk Technology: horizontal topic cards) ───────
+// --- Tech topic strip ---
 class _TechTopicStrip extends StatelessWidget {
   const _TechTopicStrip();
 
@@ -235,7 +246,8 @@ class _TechTopicCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 42, height: 42,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: AppTheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(14),
@@ -249,7 +261,8 @@ class _TechTopicCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: isDark ? Colors.white : const Color(0xFF202020),
-                  fontSize: 15, fontWeight: FontWeight.w900,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
                 )),
           ),
         ],
@@ -258,13 +271,17 @@ class _TechTopicCard extends StatelessWidget {
   }
 }
 
-// ── Technology feature grid (delegasi ke _CategoryArticleGrid) ────────────
+// --- Technology feature grid ---
 class _TechnologyFeatureGrid extends StatelessWidget {
   final List<Article> articles;
   final int columns;
   final void Function(Article article) onOpen;
   final Future<void> Function(Article article) onBookmark;
-  const _TechnologyFeatureGrid({required this.articles, required this.columns, required this.onOpen, required this.onBookmark});
+  const _TechnologyFeatureGrid(
+      {required this.articles,
+      required this.columns,
+      required this.onOpen,
+      required this.onBookmark});
 
   @override
   Widget build(BuildContext context) => _CategoryArticleGrid(
@@ -276,7 +293,7 @@ class _TechnologyFeatureGrid extends StatelessWidget {
       );
 }
 
-// ── Technology signal panel (unik: list dengan icon hub) ──────────────────
+// --- Technology signal panel ---
 class _TechnologySignalPanel extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
@@ -308,15 +325,19 @@ class _TechnologySignalPanel extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.hub_rounded, color: AppTheme.primary, size: 18),
+                    const Icon(Icons.hub_rounded,
+                        color: AppTheme.primary, size: 18),
                     const SizedBox(width: 9),
                     Expanded(
                       child: Text(article.title,
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: isDark ? Colors.white : const Color(0xFF202020),
-                            fontSize: 14, height: 1.35, fontWeight: FontWeight.w800,
+                            color:
+                                isDark ? Colors.white : const Color(0xFF202020),
+                            fontSize: 14,
+                            height: 1.35,
+                            fontWeight: FontWeight.w800,
                           )),
                     ),
                   ],
@@ -330,12 +351,13 @@ class _TechnologySignalPanel extends StatelessWidget {
   }
 }
 
-// ── Technology news row (delegasi ke _CategoryNewsRow) ────────────────────
+// --- Technology news row ---
 class _TechnologyNewsRow extends StatelessWidget {
   final Article article;
   final VoidCallback onTap;
   final VoidCallback onBookmark;
-  const _TechnologyNewsRow({required this.article, required this.onTap, required this.onBookmark});
+  const _TechnologyNewsRow(
+      {required this.article, required this.onTap, required this.onBookmark});
 
   @override
   Widget build(BuildContext context) => _CategoryNewsRow(

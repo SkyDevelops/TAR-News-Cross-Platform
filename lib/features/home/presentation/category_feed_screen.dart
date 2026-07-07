@@ -144,7 +144,8 @@ class _CategoryInfo {
           title: 'Nasional',
           queryCategory: 'Nasional',
           subtitle:
-              'Berita nasional terbaru, aktual, dan terpercaya dari seluruh Indonesia.',
+              'Berita nasional terbaru, aktual, '
+              'dan terpercaya dari seluruh Indonesia.',
         );
       case 'internasional':
         return const _CategoryInfo(
@@ -152,7 +153,8 @@ class _CategoryInfo {
           title: 'Internasional',
           queryCategory: 'Internasional',
           subtitle:
-              'Kabar dunia terbaru, isu global, diplomasi, dan peristiwa internasional.',
+              'Kabar dunia terbaru, isu global, '
+              'diplomasi, dan peristiwa internasional.',
         );
       case 'sport':
         return const _CategoryInfo(
@@ -202,7 +204,8 @@ class _CategoryInfo {
           title: 'Nasional',
           queryCategory: 'Nasional',
           subtitle:
-              'Berita nasional terbaru, aktual, dan terpercaya dari seluruh Indonesia.',
+              'Berita nasional terbaru, aktual, '
+              'dan terpercaya dari seluruh Indonesia.',
         );
     }
   }

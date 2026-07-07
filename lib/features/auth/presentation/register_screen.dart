@@ -139,7 +139,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Register untuk menikmati konten sesuai preferensi Anda.',
+                          'Register untuk menikmati konten sesuai '
+                          'preferensi Anda.',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 14,

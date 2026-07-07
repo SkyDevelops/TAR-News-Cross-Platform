@@ -8,11 +8,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 declare const Deno: any;
 
-// ── Supabase client (service role) untuk caching ke tabel articles ───────────
+// --- Supabase client untuk caching ke tabel articles ---
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-// ── Selector per-domain berdasarkan RSS_SOURCES yang aktual di fetch-news ────
+// --- Selector per-domain berdasarkan RSS_SOURCES ---
 // Setiap domain mencoba selector dari indeks pertama ke terakhir (waterfall).
 const SELECTOR_MAP: Record<string, string[]> = {
   "detik.com": [
@@ -79,7 +79,7 @@ const SELECTOR_MAP: Record<string, string[]> = {
   ],
 };
 
-// ── Tipe error yang dikembalikan ke client ────────────────────────────────────
+// --- Tipe error yang dikembalikan ke client ---
 type FetchErrorCode =
   | "blocked"        // HTTP 403 / 429
   | "timeout"        // AbortSignal timeout / AbortError
@@ -101,7 +101,7 @@ interface FetchResult {
   };
 }
 
-// ── Ambil selector list untuk domain dari URL ─────────────────────────────────
+// --- Ambil selector list untuk domain dari URL ---
 function getSelectorsForUrl(url: string): string[] {
   try {
     const hostname = new URL(url).hostname.replace(/^www\./, "");
@@ -118,7 +118,7 @@ function getSelectorsForUrl(url: string): string[] {
   return ["article", "main", "div[class*='content']", "div[class*='article']"];
 }
 
-// ── Ekstrak teks paragraf bersih dari container node ─────────────────────────
+// --- Ekstrak teks paragraf bersih dari container node ---
 function extractParagraphs(
   document: any,
   containerSelector: string,
@@ -164,7 +164,7 @@ function extractParagraphs(
   return { paragraphs, selectorUsed: containerSelector };
 }
 
-// ── Main handler ──────────────────────────────────────────────────────────────
+// --- Main handler ---
 Deno.serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
@@ -206,7 +206,7 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // ── 1. Cek apakah artikel sudah di-cache di DB ────────────────────────────
+  // --- 1. Cek apakah artikel sudah di-cache di DB ---
   if (articleId && supabaseServiceKey) {
     try {
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -232,7 +232,7 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ── 2. Fetch HTML dari sumber ─────────────────────────────────────────────
+  // --- 2. Fetch HTML dari sumber ---
   let html = "";
   let domain = "";
 
@@ -252,7 +252,8 @@ Deno.serve(async (req: Request) => {
     const res = await fetch(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+          "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         Accept:
           "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "id-ID,id;q=0.9,en;q=0.8",
@@ -265,7 +266,8 @@ Deno.serve(async (req: Request) => {
     if (res.status === 403 || res.status === 429) {
       const result: FetchResult = {
         content: null,
-        error: `Konten diblokir oleh sumber (HTTP ${res.status}). Gunakan tombol "Buka Sumber Asli".`,
+        error: `Konten diblokir oleh sumber (HTTP ${res.status}). ` +
+          `Gunakan tombol "Buka Sumber Asli".`,
         error_code: "blocked",
       };
       console.error(`Blocked by source: ${url} (HTTP ${res.status})`);
@@ -283,7 +285,8 @@ Deno.serve(async (req: Request) => {
     }
 
     html = await res.text();
-    console.log(`Successfully fetched HTML from ${url}, length: ${html.length}`);
+    console.log(`Successfully fetched HTML from ${url}, ` +
+      `length: ${html.length}`);
   } catch (e) {
     const isTimeout =
       e instanceof Error &&
@@ -293,14 +296,15 @@ Deno.serve(async (req: Request) => {
       content: null,
       error: isTimeout
         ? "Waktu permintaan habis — sumber terlalu lama merespons."
-        : `Gagal menghubungi sumber: ${e instanceof Error ? e.message : String(e)}`,
+        : `Gagal menghubungi sumber: ` +
+          `${e instanceof Error ? e.message : String(e)}`,
       error_code: isTimeout ? "timeout" : "network_error",
     };
     console.error(`Fetch exception for ${url}:`, e);
     return new Response(JSON.stringify(result), { headers: corsHeaders });
   }
 
-  // ── 3. Parse HTML dengan linkedom ─────────────────────────────────────────
+  // --- 3. Parse HTML dengan linkedom ---
   let document: any = null;
 
   try {
@@ -328,7 +332,7 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify(result), { headers: corsHeaders });
   }
 
-  // ── 4. Coba selector per-domain (waterfall) ───────────────────────────────
+  // --- 4. Coba selector per-domain (waterfall) ---
   const selectors = getSelectorsForUrl(url);
   let extractResult: ReturnType<typeof extractParagraphs> = null;
 
@@ -339,7 +343,7 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ── 5. Fallback: generic <article> / <main> ───────────────────────────────
+  // --- 5. Fallback: generic <article> / <main> ---
   if (!extractResult || extractResult.paragraphs.length < 2) {
     for (const genericSelector of ["article", "main", "[role='main']"]) {
       extractResult = extractParagraphs(document, genericSelector);
@@ -347,7 +351,7 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ── 6. Last resort: semua <p> di body (bukan seluruh HTML) ────────────────
+  // --- 6. Last resort: semua <p> di body ---
   if (!extractResult || extractResult.paragraphs.length < 2) {
     const body = document.querySelector("body");
     if (body) {
@@ -369,12 +373,14 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ── 7. Tidak ada konten sama sekali ───────────────────────────────────────
+  // --- 7. Tidak ada konten sama sekali ---
   if (!extractResult || extractResult.paragraphs.length === 0) {
     const result: FetchResult = {
       content: null,
       error:
-        "Konten artikel tidak dapat diekstrak dari halaman ini. Kemungkinan situs menggunakan JavaScript rendering atau proteksi anti-bot.",
+        "Konten artikel tidak dapat diekstrak dari halaman ini. " +
+        "Kemungkinan situs menggunakan JavaScript rendering atau " +
+        "proteksi anti-bot.",
       error_code: "no_selector_match",
       debug: {
         domain,
@@ -388,7 +394,7 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify(result), { headers: corsHeaders });
   }
 
-  // ── 8. Deduplicate & join ─────────────────────────────────────────────────
+  // --- 8. Deduplicate & join ---
   const seen = new Set<string>();
   const unique = extractResult.paragraphs.filter((p) => {
     if (seen.has(p)) return false;
@@ -405,7 +411,7 @@ Deno.serve(async (req: Request) => {
   console.log(`Paragraphs found: ${unique.length}`);
   console.log(`Content length: ${content.length}`);
 
-  // ── 9. Cache ke DB jika konten cukup panjang ─────────────────────────────
+  // --- 9. Cache ke DB jika konten cukup panjang ---
   if (content.length > 100 && supabaseServiceKey) {
     try {
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -416,7 +422,7 @@ Deno.serve(async (req: Request) => {
           .from("articles")
           .update({ content })
           .eq("id", articleId)
-          .is("content", null); // hanya update jika masih null (tidak overwrite edit manual)
+          .is("content", null); // hanya update jika masih null
       } else {
         await supabase
           .from("articles")
@@ -431,7 +437,7 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ── 10. Return hasil ──────────────────────────────────────────────────────
+  // --- 10. Return hasil ---
   const result: FetchResult = {
     content: content.length > 100 ? content : null,
     cached: false,
@@ -446,11 +452,13 @@ Deno.serve(async (req: Request) => {
 
   if (!result.content) {
     result.error =
-      "Konten terlalu pendek untuk ditampilkan. Gunakan tombol Buka Sumber Asli.";
+      "Konten terlalu pendek untuk ditampilkan. " +
+      "Gunakan tombol Buka Sumber Asli.";
     result.error_code = "no_selector_match";
   }
 
-  console.log(`Returning result for ${url}, error_code: ${result.error_code ?? 'none'}, cached: false`);
+  console.log(`Returning result for ${url}, error_code: ` +
+    `${result.error_code ?? 'none'}, cached: false`);
   return new Response(JSON.stringify(result), { headers: corsHeaders });
   } catch (error) {
     console.error("Fatal error in handler:", error);

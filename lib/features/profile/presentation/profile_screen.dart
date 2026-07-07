@@ -34,7 +34,7 @@ class ProfileScreen extends ConsumerWidget {
           final screenWidth = MediaQuery.of(context).size.width;
           final isDesktop = screenWidth >= 800;
 
-          // ── DESKTOP LAYOUT (>= 800px) ─────────────────────────────────
+          // --- DESKTOP LAYOUT (>= 800px) ---
           if (isDesktop) {
             final avatarSection = SizedBox(
               width: 220,
@@ -44,18 +44,22 @@ class ProfileScreen extends ConsumerWidget {
                   CircleAvatar(
                     radius: 64,
                     backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
-                    backgroundImage: (profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty)
+                    backgroundImage: (profile?.avatarUrl != null &&
+                            profile!.avatarUrl!.isNotEmpty)
                         ? NetworkImage(profile.avatarUrl!) as ImageProvider
                         : null,
-                    child: (profile?.avatarUrl == null || profile!.avatarUrl!.isEmpty)
-                        ? const Icon(Icons.person, size: 64, color: AppTheme.primary)
+                    child: (profile?.avatarUrl == null ||
+                            profile!.avatarUrl!.isEmpty)
+                        ? const Icon(Icons.person,
+                            size: 64, color: AppTheme.primary)
                         : null,
                   ),
                   const SizedBox(height: 20),
                   Text(
                     profile?.fullName ?? user.email ?? 'Pengguna',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -63,12 +67,15 @@ class ProfileScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[500], fontSize: 14),
                   ),
-                  if (profile?.username != null && profile!.username!.isNotEmpty) ...[
+                  if (profile?.username != null &&
+                      profile!.username!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       '@${profile.username!}',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppTheme.primary.withValues(alpha: 0.8), fontSize: 13),
+                      style: TextStyle(
+                          color: AppTheme.primary.withValues(alpha: 0.8),
+                          fontSize: 13),
                     ),
                   ],
                   if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
@@ -89,7 +96,8 @@ class ProfileScreen extends ConsumerWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.primary,
                         side: const BorderSide(color: AppTheme.primary),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
@@ -121,7 +129,8 @@ class ProfileScreen extends ConsumerWidget {
                 onTap: () async {
                   await ref.read(authProvider.notifier).logout();
                   if (context.mounted) {
-                    context.go('/login?redirect=${Uri.encodeComponent('/home/profile')}');
+                    context.go('/login?redirect='
+                        '${Uri.encodeComponent('/home/profile')}');
                   }
                 },
               ),
@@ -133,7 +142,7 @@ class ProfileScreen extends ConsumerWidget {
             );
           }
 
-          // ── MOBILE LAYOUT (< 800px) — TIDAK DIUBAH ───────────────────
+          // --- MOBILE LAYOUT (< 800px) ---
           return Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
@@ -239,7 +248,8 @@ class ProfileScreen extends ConsumerWidget {
                         await ref.read(authProvider.notifier).logout();
                         if (context.mounted) {
                           context.go(
-                              '/login?redirect=${Uri.encodeComponent('/home/profile')}');
+                              '/login?redirect='
+                              '${Uri.encodeComponent('/home/profile')}');
                         }
                       },
                     ),

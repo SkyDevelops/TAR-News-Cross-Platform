@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 
 class ProfileDesktopLayout extends StatelessWidget {
-  final Widget avatarSection; // avatar, nama, email, username, bio, tombol Edit Profil
+  final Widget
+      avatarSection; // avatar, nama, email, username, bio, tombol Edit Profil
   final List<DesktopMenuItemData> menuItems;
 
   const ProfileDesktopLayout({
@@ -19,12 +20,15 @@ class ProfileDesktopLayout extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch, // kunci: kolom sama tinggi
+            crossAxisAlignment:
+                CrossAxisAlignment.stretch, // kunci: kolom sama tinggi
             children: [
               Expanded(
                 flex: 4,
                 child: _CardContainer(
-                  child: Center(child: avatarSection), // isi kekosongan dgn center vertikal
+                  child: Center(
+                      child:
+                          avatarSection), // isi kekosongan dgn center vertikal
                 ),
               ),
               const SizedBox(width: 24),
@@ -54,7 +58,8 @@ class ProfileDesktopLayout extends StatelessWidget {
 class _CardContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
-  const _CardContainer({required this.child, this.padding = const EdgeInsets.all(32)});
+  const _CardContainer(
+      {required this.child, this.padding = const EdgeInsets.all(32)});
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +115,8 @@ class DesktopMenuItem extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: Text(data.label,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w500)),
               ),
               const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
             ],

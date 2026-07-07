@@ -1,15 +1,15 @@
 part of '../category_feed_screen.dart';
 
-// ════════════════════════════════════════════════════════════════════════════
-// SHARED CATEGORY WIDGETS
-// Widget-widget parametrized yang dipakai bersama oleh semua kategori.
-// Menggantikan duplikasi di finance_, sport_, technology_, dan
+// --- SHARED CATEGORY WIDGETS ---
+// Widget-widget parametrized yang dipakai bersama oleh
+// semua kategori. Menggantikan duplikasi di finance_,
+// sport_, technology_, dan
 // national_international_category_widgets.dart
-// ════════════════════════════════════════════════════════════════════════════
 
 /// Header dengan icon box + judul + subtitle.
 /// Menggantikan _FinanceHeader, _SportHeader, _InternationalHeader.
-/// [extraContent] opsional untuk konten tambahan di bawah subtitle (mis. tech pills).
+/// [extraContent] opsional untuk konten tambahan di bawah
+/// subtitle (mis. tech pills).
 class _CategoryIconHeader extends StatelessWidget {
   final _CategoryInfo info;
   final IconData icon;
@@ -297,7 +297,8 @@ class _CategoryHorizontalScroll extends StatelessWidget {
   }
 }
 
-/// Card horizontal (gambar + gradient + title) untuk dipakai di _CategoryHorizontalScroll.
+/// Card horizontal (gambar + gradient + title) untuk dipakai
+/// di _CategoryHorizontalScroll.
 class _CategoryHorizontalCard extends StatelessWidget {
   final Article article;
   final String labelText;
@@ -496,7 +497,8 @@ class _CategoryNewsRow extends StatelessWidget {
 }
 
 /// Grid artikel (ArticleCard).
-/// Menggantikan _FinanceStoryGrid, _SportStoryGrid, _TechnologyFeatureGrid, _CategoryGrid.
+/// Menggantikan _FinanceStoryGrid, _SportStoryGrid,
+/// _TechnologyFeatureGrid, _CategoryGrid.
 class _CategoryArticleGrid extends StatelessWidget {
   final List<Article> articles;
   final int columns;
@@ -538,9 +540,7 @@ class _CategoryArticleGrid extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// WIDGET YANG SUDAH ADA DI SINI SEBELUMNYA (dipertahankan)
-// ════════════════════════════════════════════════════════════════════════════
+// --- WIDGET YANG SUDAH ADA (dipertahankan) ---
 
 /// Header generic (tanpa icon, menggunakan bar warna vertikal).
 /// Dipakai oleh _GenericCategoryPage dan _NasionalCategoryPage.
@@ -606,7 +606,8 @@ class _CategoryHeader extends StatelessWidget {
   }
 }
 
-/// Grid untuk _NasionalCategoryPage dan _GenericCategoryPage (pakai ArticleCard bawaan).
+/// Grid untuk _NasionalCategoryPage dan _GenericCategoryPage
+/// (pakai ArticleCard bawaan).
 class _CategoryGrid extends StatelessWidget {
   final List<Article> articles;
   final int columns;

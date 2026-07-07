@@ -122,7 +122,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // âœ… TAMBAHAN: Google Sign-In via Supabase OAuth
   Future<void> loginWithGoogle() async {
     const mobileRedirectUrl = 'tarnews://login-callback/';
-    final webRedirectUrl = '${Uri.base.origin}/';
 
     state = state.copyWith(
       status: AuthStatus.loading,
@@ -132,7 +131,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final didLaunch = await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: kIsWeb ? webRedirectUrl : mobileRedirectUrl,
+        redirectTo: kIsWeb ? '${Uri.base.origin}/' : mobileRedirectUrl,
         authScreenLaunchMode: LaunchMode.platformDefault,
       );
 

@@ -142,7 +142,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Log in untuk membuka profil dan menikmati fitur personal.',
+                          'Log in untuk membuka profil dan menikmati '
+                          'fitur personal.',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 14,

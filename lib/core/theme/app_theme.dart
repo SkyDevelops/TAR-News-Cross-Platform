@@ -48,14 +48,10 @@ class AppTheme {
           displayLarge: TextStyle(color: color),
           displayMedium: TextStyle(color: color),
           displaySmall: TextStyle(color: color),
-          headlineLarge:
-              TextStyle(color: color, fontWeight: FontWeight.w700),
-          headlineMedium:
-              TextStyle(color: color, fontWeight: FontWeight.w700),
-          headlineSmall:
-              TextStyle(color: color, fontWeight: FontWeight.w600),
-          titleLarge:
-              TextStyle(color: color, fontWeight: FontWeight.w600),
+          headlineLarge: TextStyle(color: color, fontWeight: FontWeight.w700),
+          headlineMedium: TextStyle(color: color, fontWeight: FontWeight.w700),
+          headlineSmall: TextStyle(color: color, fontWeight: FontWeight.w600),
+          titleLarge: TextStyle(color: color, fontWeight: FontWeight.w600),
           titleMedium: TextStyle(color: color),
           titleSmall: TextStyle(color: color),
           bodyLarge: TextStyle(color: color),
@@ -83,8 +79,8 @@ class AppTheme {
         cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
@@ -109,8 +105,8 @@ class AppTheme {
             backgroundColor: primary,
             foregroundColor: onPrimary,
             minimumSize: const Size(double.infinity, 48),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             elevation: 0,
           ),
         ),
@@ -127,16 +123,13 @@ class AppTheme {
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return const TextStyle(
-                  color: primary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600);
+                  color: primary, fontSize: 12, fontWeight: FontWeight.w600);
             }
-            return const TextStyle(
-                color: Color(0xFF9E9E9E), fontSize: 12);
+            return const TextStyle(color: Color(0xFF9E9E9E), fontSize: 12);
           }),
         ),
-        dividerTheme: const DividerThemeData(
-            color: Color(0xFFF0F0F0), thickness: 1),
+        dividerTheme:
+            const DividerThemeData(color: Color(0xFFF0F0F0), thickness: 1),
         useMaterial3: true,
       );
 
@@ -159,8 +152,8 @@ class AppTheme {
         cardTheme: CardThemeData(
           color: const Color(0xFF1E1E1E),
           elevation: 0,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
@@ -185,8 +178,8 @@ class AppTheme {
             backgroundColor: primary,
             foregroundColor: onPrimary,
             minimumSize: const Size(double.infinity, 48),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             elevation: 0,
           ),
         ),
@@ -203,16 +196,13 @@ class AppTheme {
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return const TextStyle(
-                  color: primary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600);
+                  color: primary, fontSize: 12, fontWeight: FontWeight.w600);
             }
-            return const TextStyle(
-                color: Color(0xFF9E9E9E), fontSize: 12);
+            return const TextStyle(color: Color(0xFF9E9E9E), fontSize: 12);
           }),
         ),
-        dividerTheme: const DividerThemeData(
-            color: Color(0xFF2A2A2A), thickness: 1),
+        dividerTheme:
+            const DividerThemeData(color: Color(0xFF2A2A2A), thickness: 1),
         useMaterial3: true,
       );
 }

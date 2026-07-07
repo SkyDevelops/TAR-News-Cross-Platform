@@ -11,10 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    // Pump hanya widget pengujian tanpa membangun seluruh MyApp yang bergantung Supabase.
+    // Pump hanya widget pengujian tanpa membangun seluruh MyApp
+    // yang bergantung Supabase.
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
 
-    // Tidak memeriksa counter karena widget yang dipump tidak memiliki state counter.
+    // Tidak memeriksa counter karena widget yang dipump tidak
+    // memiliki state counter.
 
     // Tidak ada counter logic pada widget uji ini.
     // Tujuan test ini hanya memastikan test harness berjalan tanpa error.

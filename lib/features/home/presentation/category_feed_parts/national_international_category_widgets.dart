@@ -1,12 +1,12 @@
 part of '../category_feed_screen.dart';
 
-// ════════════════════════════════════════════════════════════════════════════
+// --- NASIONAL & INTERNATIONAL CATEGORY WIDGETS ---
 // NATIONAL & INTERNATIONAL CATEGORY WIDGETS
 // Thin entry-point: config specific + komponen unik.
 // Widget struktural sudah dipindah ke shared_category_widgets.dart
-// ════════════════════════════════════════════════════════════════════════════
+// --- NASIONAL & INTERNATIONAL CATEGORY WIDGETS ---
 
-// ── International header (memakai _CategoryIconHeader dari shared) ─────────
+// --- International header ---
 class _InternationalHeader extends StatelessWidget {
   final _CategoryInfo info;
   const _InternationalHeader({required this.info});
@@ -18,7 +18,7 @@ class _InternationalHeader extends StatelessWidget {
       );
 }
 
-// ── Nasional hero card (delegasi ke _CategoryHeroCard) ────────────────────
+// --- Nasional hero card ---─
 class _NasionalHeroCard extends StatelessWidget {
   final Article article;
   final double? height;
@@ -42,7 +42,7 @@ class _NasionalHeroCard extends StatelessWidget {
       );
 }
 
-// ── International hero card (delegasi ke _CategoryHeroCard) ───────────────
+// --- International hero card ---
 class _InternationalHeroCard extends StatelessWidget {
   final Article article;
   final double? height;
@@ -66,12 +66,13 @@ class _InternationalHeroCard extends StatelessWidget {
       );
 }
 
-// ── Nasional side panel (unik: panel judul + thumbnail kecil) ─────────────
+// --- Nasional side panel ---
 class _NasionalSidePanel extends StatelessWidget {
   final String title;
   final List<Article> articles;
   final void Function(Article article) onOpen;
-  const _NasionalSidePanel({required this.title, required this.articles, required this.onOpen});
+  const _NasionalSidePanel(
+      {required this.title, required this.articles, required this.onOpen});
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +92,8 @@ class _NasionalSidePanel extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 4, height: 20,
+                  width: 4,
+                  height: 20,
                   decoration: BoxDecoration(
                     color: AppTheme.primary,
                     borderRadius: BorderRadius.circular(99),
@@ -101,19 +103,26 @@ class _NasionalSidePanel extends StatelessWidget {
                 Text(title,
                     style: TextStyle(
                       color: isDark ? Colors.white : const Color(0xFF202020),
-                      fontSize: 18, fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
                     )),
               ],
             ),
           ),
-          Divider(height: 1, color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEFEFEF)),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEFEFEF)),
           Expanded(
             child: ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.zero,
               itemCount: articles.length,
               separatorBuilder: (_, __) => Divider(
-                  height: 1, color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEFEFEF)),
+                  height: 1,
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : const Color(0xFFEFEFEF)),
               itemBuilder: (context, index) {
                 final article = articles[index];
                 return InkWell(
@@ -124,7 +133,8 @@ class _NasionalSidePanel extends StatelessWidget {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(9),
-                          child: NewsImage(url: article.imageUrl, width: 92, height: 64),
+                          child: NewsImage(
+                              url: article.imageUrl, width: 92, height: 64),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -132,8 +142,12 @@ class _NasionalSidePanel extends StatelessWidget {
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: isDark ? Colors.white : const Color(0xFF202020),
-                                fontSize: 13, height: 1.3, fontWeight: FontWeight.w800,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF202020),
+                                fontSize: 13,
+                                height: 1.3,
+                                fontWeight: FontWeight.w800,
                               )),
                         ),
                       ],
@@ -149,11 +163,12 @@ class _NasionalSidePanel extends StatelessWidget {
   }
 }
 
-// ── International brief panel (unik: bullet list global) ──────────────────
+// --- International brief panel ---
 class _InternationalBriefPanel extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
-  const _InternationalBriefPanel({required this.articles, required this.onOpen});
+  const _InternationalBriefPanel(
+      {required this.articles, required this.onOpen});
 
   @override
   Widget build(BuildContext context) {
@@ -173,17 +188,22 @@ class _InternationalBriefPanel extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
             child: Row(
               children: [
-                const Icon(Icons.language_rounded, color: AppTheme.primary, size: 21),
+                const Icon(Icons.language_rounded,
+                    color: AppTheme.primary, size: 21),
                 const SizedBox(width: 8),
                 Text('Global Brief',
                     style: TextStyle(
                       color: isDark ? Colors.white : const Color(0xFF202020),
-                      fontSize: 18, fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
                     )),
               ],
             ),
           ),
-          Divider(height: 1, color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEFEFEF)),
+          Divider(
+              height: 1,
+              color:
+                  isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEFEFEF)),
           ...articles.map((article) {
             final isLast = article == articles.last;
             return Column(
@@ -195,7 +215,8 @@ class _InternationalBriefPanel extends StatelessWidget {
                     child: Row(
                       children: [
                         Container(
-                          width: 9, height: 9,
+                          width: 9,
+                          height: 9,
                           decoration: const BoxDecoration(
                             color: AppTheme.primary,
                             shape: BoxShape.circle,
@@ -207,8 +228,12 @@ class _InternationalBriefPanel extends StatelessWidget {
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: isDark ? Colors.white : const Color(0xFF202020),
-                                fontSize: 13.5, height: 1.35, fontWeight: FontWeight.w800,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF202020),
+                                fontSize: 13.5,
+                                height: 1.35,
+                                fontWeight: FontWeight.w800,
                               )),
                         ),
                       ],
@@ -218,7 +243,9 @@ class _InternationalBriefPanel extends StatelessWidget {
                 if (!isLast)
                   Divider(
                       height: 1,
-                      color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEFEFEF)),
+                      color: isDark
+                          ? const Color(0xFF2A2A2A)
+                          : const Color(0xFFEFEFEF)),
               ],
             );
           }),
@@ -228,7 +255,7 @@ class _InternationalBriefPanel extends StatelessWidget {
   }
 }
 
-// ── World highlight strip (unik: horizontal card dengan label 'World') ────
+// --- World highlight strip ---
 class _WorldHighlightStrip extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
@@ -269,7 +296,9 @@ class _WorldHighlightStrip extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      left: 14, right: 14, bottom: 14,
+                      left: 14,
+                      right: 14,
+                      bottom: 14,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -280,7 +309,9 @@ class _WorldHighlightStrip extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 17, height: 1.25, fontWeight: FontWeight.w900,
+                                fontSize: 17,
+                                height: 1.25,
+                                fontWeight: FontWeight.w900,
                               )),
                         ],
                       ),
@@ -296,7 +327,7 @@ class _WorldHighlightStrip extends StatelessWidget {
   }
 }
 
-// ── International fact box (unik: side panel text-only) ───────────────────
+// --- International fact box ---
 class _InternationalFactBox extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
@@ -329,7 +360,9 @@ class _InternationalFactBox extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: isDark ? Colors.white : const Color(0xFF202020),
-                      fontSize: 14, height: 1.35, fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                      height: 1.35,
+                      fontWeight: FontWeight.w800,
                     )),
               ),
             );

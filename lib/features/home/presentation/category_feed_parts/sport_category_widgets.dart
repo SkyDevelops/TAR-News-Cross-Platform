@@ -1,12 +1,10 @@
 part of '../category_feed_screen.dart';
 
-// ════════════════════════════════════════════════════════════════════════════
-// SPORT CATEGORY WIDGETS
+// --- SPORT CATEGORY WIDGETS ---
 // Thin entry-point: config sport-specific + komponen unik.
 // Widget struktural sudah dipindah ke shared_category_widgets.dart
-// ════════════════════════════════════════════════════════════════════════════
 
-// ── Sport header (memakai _CategoryIconHeader dari shared) ────────────────
+// --- Sport header ---
 class _SportHeader extends StatelessWidget {
   final _CategoryInfo info;
   const _SportHeader({required this.info});
@@ -18,7 +16,7 @@ class _SportHeader extends StatelessWidget {
       );
 }
 
-// ── Sport main hero (delegasi ke _CategoryHeroCard) ───────────────────────
+// --- Sport main hero ---
 class _SportMainHero extends StatelessWidget {
   final Article article;
   final double height;
@@ -42,12 +40,13 @@ class _SportMainHero extends StatelessWidget {
       );
 }
 
-// ── Sport horizontal highlights (delegasi ke _CategoryHorizontalScroll) ───
+// --- Sport horizontal highlights ---
 class _SportHorizontalHighlights extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
   final Future<void> Function(Article article) onBookmark;
-  const _SportHorizontalHighlights({required this.articles, required this.onOpen, required this.onBookmark});
+  const _SportHorizontalHighlights(
+      {required this.articles, required this.onOpen, required this.onBookmark});
 
   @override
   Widget build(BuildContext context) => _CategoryHorizontalScroll(
@@ -61,12 +60,13 @@ class _SportHorizontalHighlights extends StatelessWidget {
       );
 }
 
-// ── Sport news row (delegasi ke _CategoryNewsRow) ─────────────────────────
+// --- Sport news row ---
 class _SportNewsRow extends StatelessWidget {
   final Article article;
   final VoidCallback onTap;
   final VoidCallback onBookmark;
-  const _SportNewsRow({required this.article, required this.onTap, required this.onBookmark});
+  const _SportNewsRow(
+      {required this.article, required this.onTap, required this.onBookmark});
 
   @override
   Widget build(BuildContext context) => _CategoryNewsRow(
@@ -77,7 +77,7 @@ class _SportNewsRow extends StatelessWidget {
       );
 }
 
-// ── Sport update box (unik: list dengan highlight box berwarna) ───────────
+// --- Sport update box ---
 class _SportUpdateBox extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
@@ -113,15 +113,19 @@ class _SportUpdateBox extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.sports_score_rounded, color: AppTheme.primary, size: 20),
+                    const Icon(Icons.sports_score_rounded,
+                        color: AppTheme.primary, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(article.title,
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: isDark ? Colors.white : const Color(0xFF202020),
-                            fontSize: 13.5, height: 1.35, fontWeight: FontWeight.w800,
+                            color:
+                                isDark ? Colors.white : const Color(0xFF202020),
+                            fontSize: 13.5,
+                            height: 1.35,
+                            fontWeight: FontWeight.w800,
                           )),
                     ),
                   ],
@@ -135,7 +139,7 @@ class _SportUpdateBox extends StatelessWidget {
   }
 }
 
-// ── Sport trending box (unik: list dengan nomor urut) ─────────────────────
+// --- Sport trending box ---
 class _SportTrendingBox extends StatelessWidget {
   final List<Article> articles;
   final void Function(Article article) onOpen;
@@ -172,7 +176,8 @@ class _SportTrendingBox extends StatelessWidget {
                     Text('$index',
                         style: const TextStyle(
                           color: AppTheme.primary,
-                          fontSize: 22, fontWeight: FontWeight.w900,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
                         )),
                     const SizedBox(width: 10),
                     Expanded(
@@ -180,8 +185,11 @@ class _SportTrendingBox extends StatelessWidget {
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: isDark ? Colors.white : const Color(0xFF202020),
-                            fontSize: 14, height: 1.35, fontWeight: FontWeight.w800,
+                            color:
+                                isDark ? Colors.white : const Color(0xFF202020),
+                            fontSize: 14,
+                            height: 1.35,
+                            fontWeight: FontWeight.w800,
                           )),
                     ),
                   ],
@@ -195,13 +203,17 @@ class _SportTrendingBox extends StatelessWidget {
   }
 }
 
-// ── Sport story grid (delegasi ke _CategoryArticleGrid) ───────────────────
+// --- Sport story grid ---
 class _SportStoryGrid extends StatelessWidget {
   final List<Article> articles;
   final int columns;
   final void Function(Article article) onOpen;
   final Future<void> Function(Article article) onBookmark;
-  const _SportStoryGrid({required this.articles, required this.columns, required this.onOpen, required this.onBookmark});
+  const _SportStoryGrid(
+      {required this.articles,
+      required this.columns,
+      required this.onOpen,
+      required this.onBookmark});
 
   @override
   Widget build(BuildContext context) => _CategoryArticleGrid(

@@ -90,8 +90,9 @@ class NewsImage extends StatelessWidget {
   static const Map<String, String> _imageHeaders = {
     'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-        '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+            '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept':
+        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
   };
 
   @override
@@ -115,15 +116,11 @@ class NewsImage extends StatelessWidget {
         final displayWidth = _resolveDisplayWidth(context, constraints);
         final displayHeight = _resolveDisplayHeight(displayWidth, constraints);
 
-        final memCacheWidth = (displayWidth * dpr)
-            .round()
-            .clamp(1, 1200)
-            .toInt();
+        final memCacheWidth =
+            (displayWidth * dpr).round().clamp(1, 1200).toInt();
 
-        final memCacheHeight = (displayHeight * dpr)
-            .round()
-            .clamp(1, 900)
-            .toInt();
+        final memCacheHeight =
+            (displayHeight * dpr).round().clamp(1, 900).toInt();
 
         return _buildContainer(
           child: CachedNetworkImage(

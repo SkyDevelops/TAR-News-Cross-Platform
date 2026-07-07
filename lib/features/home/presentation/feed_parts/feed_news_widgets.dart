@@ -232,9 +232,10 @@ class _PopularPanel extends StatelessWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: visibleArticles.length,
                     itemBuilder: (context, index) {
-                      final itemHeight =
-                          (constraints.maxHeight - headerHeight - dividerHeight)
-                              / visibleArticles.length;
+                      final itemHeight = (constraints.maxHeight -
+                              headerHeight -
+                              dividerHeight) /
+                          visibleArticles.length;
 
                       final safeHeight = itemHeight.clamp(56.0, 90.0);
 
