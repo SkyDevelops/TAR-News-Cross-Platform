@@ -2,4 +2,5 @@
   "deno.enable": true,
   "deno.enablePaths": ["supabase/functions"],
   "deno.lint": true,
+  "java.configuration.updateBuildConfiguration": "interactive",
 }
